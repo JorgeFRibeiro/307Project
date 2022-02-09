@@ -25,9 +25,12 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
+    # Load in portion of app that is in auth.py
+    from .auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint)
+
+    # Load in portion of app that is in main.py
+    from .main import main as main_blueprint
+    app.register_blueprint(main_blueprint)
 
     return app
