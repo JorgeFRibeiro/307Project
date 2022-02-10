@@ -34,7 +34,9 @@
 {% with messages = get_flashed_messages() %}
 {% if messages %}
     <div class="notification is-danger">
-        {{ messages[0] }}
+        <!-- In the display message for duplicate sign up, 
+            give user option to click link for faster login -->
+        {{ messages[0] }} <a href="{{url_for('auth.login')}}">Login here!</a>
     </div>
 {% endif %}
 {% endwith %}
