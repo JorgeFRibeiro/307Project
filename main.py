@@ -11,16 +11,21 @@ def index():
     return render_template('index.html')
 
 # Profile page
-@main.route('/profile', methods=['GET', 'POST'])
+@main.route('/profile')
 @login_required
 def profile():
-    if request.method == 'POST':
-        # Deleting a user account and all of their associated data
-        if request.form.get('action1') == "Delete Account":
-            obj = User.query.filter_by(id=current_user.id).one()
-            db.session.delete(obj)
-            db.session.commit()
-            return redirect(url_for('auth.logout'))
-
-    # TODO: replace passed info about current user with actual needed info
     return render_template('profile.html', name = current_user.name)
+
+# Account delete and other functions, differentiated based on 'action's value
+@main.route('/profile', methods=['POST'])
+@login_required
+def profile_delete():
+    # Deleting a user account and all of their associated data
+    if request.form.get('action') == "Delete Account":
+        obj = User.query.filter_by(id=current_user.id).one()
+        db.session.delete(obj)
+        db.session.commit()
+        return redirect(url_for('auth.logout'))
+
+    # TODO: Other buttons if they exist
+    return redirect(url_for('main.profile'))

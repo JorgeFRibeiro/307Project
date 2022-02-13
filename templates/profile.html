@@ -1,10 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title">
-  Welcome, {{ name }}!
-</h1>
-<form method="POST" action="/profile">
-  <input type="submit" value="Delete Account" name="action1"/>
-</form>
+
+<div class="column is-4 is-offset-4">
+  <h1 class="title">User Info</h1>
+  <div class="box">
+      <h3>Name: {{ name }}</h3>
+      <form method="POST" action="/profile">
+          <button class="button is-block is-info is-large is-fullwidth" value="Delete Account" name="action"button style="margin:5px;">Delete Account</button>
+      </form>
+  </div>
+</div>
+
 {% endblock %}
