@@ -14,8 +14,13 @@
 
         <div class="hero-head">
             <nav class="navbar">
+                <div class="navbar-burger burger" onclick="document.querySelector('.navbar-menu').classList.toggle('is-active');">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
                 <div class="container">
-                    <div id="navbarMenuHeroA" class="navbar-menu">
+                    <div class="navbar-menu">
                         <div class="navbar-end">
 
                             <a href="{{ url_for('main.index') }}" class="navbar-item">
