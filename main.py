@@ -16,7 +16,7 @@ def index():
 @main.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html', name = current_user.name)
+    return render_template('profile.html', name = current_user.name, bio = current_user.bio)
 
 # Account delete and other functions, differentiated based on 'action's value
 @main.route('/profile', methods=['POST'])
