@@ -1,6 +1,10 @@
 import re
+import datetime
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from token import *
+from email import *
 from .models import User
 from flask_login import login_user, login_required, logout_user, current_user
 from . import db
@@ -49,39 +53,47 @@ def signup():
     return render_template('signup.html')
 
 # Signup function
-@auth.route('/signup', methods=['POST'])
+@auth.route('/signup', methods=['GET', 'POST'])
 def signup_post():
     # Grab all the information User passed to Signup fields
     # TODO: Change with information actually to be used, doing so will
     #       require an update to signup.html as well as login.html
-    email = request.form.get('email')
-    name = request.form.get('name')
-    password = request.form.get('password')
-    user = User.query.filter_by(email=email).first() 
-    if not email or not name or not password:
-        flash('PLEASE FILL OUT ALL DAH FIELDS')
-        return redirect(url_for('auth.signup'))
+    form = RegisterForm(request.form)
+    if form.validate_on_submit():
+        email = request.form.get('email')
+        name = request.form.get('name')
+        password = request.form.get('password')
+        user = User.query.filter_by(email=email).first() 
+        if not email or not name or not password:
+            flash('PLEASE FILL OUT ALL DAH FIELDS')
+            return redirect(url_for('auth.signup'))
 
-    # TODO: Password hashing for security
+        if user: # If the user do already be in the database, go back
+            flash('YOU ALREADY EXIST GET OUTTA HERE BUDDY')
+            return redirect(url_for('auth.signup'))
 
-    
-    # TODO: Validate new user. Use above bool var, he_do_exist
-   
+        # Create a new User with passed information
+        # TODO: Create User with passed information into database
+        new_dude = User(email=email, name=name, password=generate_password_hash(password, method='sha256'), confirmed=False)
+        print("HELLO HELLO HELLO")
 
-    if user: # If the user do already be in the database, go back
-        flash('YOU ALREADY EXIST GET OUTTA HERE BUDDY')
-        return redirect(url_for('auth.signup'))
+        # TODO: Add new guy to database
+        db.session.add(new_dude)
+        db.session.commit()
 
-    # Create a new User with passed information
-    # TODO: Create User with passed information into database
-    new_dude = User(email=email, name=name, password=generate_password_hash(password, method='sha256'))
-    print("HELLO HELLO HELLO")
+        token = generate_confirmation_token(new_dude.email)
+        confirm_url = url_for('new_dude.confirm_email', token=token, _external=True)
+        html = render_template('templates/activate.html', confirm_url=confirm_url)
+        subject = "Please confirm your email homie"
+        send_email(new_dude.email, subject, html)
 
-    # TODO: Add new guy to database
-    db.session.add(new_dude)
-    db.session.commit()
+        login_user(new_dude)
+        flash('A confirmation email has been sent via email.', 'success')
+        return redirect(url_for("main.home"))
+    return render_template('user/register.html', form=form)
     # Send user back to login page
-    return redirect(url_for('auth.login'))
+    # return redirect(url_for('auth.login'))
+    
 
 # Logout function
 @auth.route('/logout')
@@ -89,3 +101,22 @@ def signup_post():
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
+
+# E-Mail authentication
+@auth.route('/confirm/<token>')
+@login_required
+def confirm_email(token):
+    try:
+        email = confirm_token(token)
+    except:
+        flash('The confirmation link is invalid or has expired.', 'danger')
+    user = User.query.filter_by(email=email).first_or_404()
+    if user.confirmed:
+        flash('Account already confirmed. Please login.', 'success')
+    else:
+        user.confirmed = True
+        user.confirmed_on = datetime.datetime.now()
+        db.session.add(user)
+        db.session.commit()
+        flash('You have confirmed your account. Thanks!', 'success')
+    return redirect(url_for('main.home'))

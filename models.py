@@ -1,3 +1,4 @@
+from email.policy import default
 from flask_login import UserMixin
 from . import db
 
@@ -13,6 +14,8 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
     bio = db.Column(db.String(1000))
+    confirmed = db.Column(db.Boolean, nullable = False, default = False)
+    confirmed_on = db.Column(db.DateTime)
     # End of warning
 
 class Post(UserMixin, db.Model):
