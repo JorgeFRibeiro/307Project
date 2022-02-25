@@ -39,21 +39,6 @@ def profile_delete():
     # TODO: Other buttons if they exist
     return redirect(url_for('main.profile'))
 
-# Post related functions
-# TODO: Complete once front end components are added
-def create_post():
-    print("post creation", request.form)
-    # if request.form.get('action') == "Create Post":
-    if request.form.get('action') == "Create Post":  
-        text = "test post"
-        contents = "test"
-        topic_list = "topic1,topic2,topic3"
-        new_post = Post(user_id=current_user.id, contents=contents, topic_list=topic_list)
-        db.session.add(new_post)
-        db.session.commit()
-    # TODO: Display some sort of post creation message
-    return redirect(url_for('main.profile'))
-
 # Access the Edit Profile page
 @main.route('/edit_profile', methods=['GET'])
 @login_required
@@ -92,11 +77,28 @@ def update_profile():
         db.session.commit()
     return redirect(url_for('main.profile'))
 
+# Post related functions
+@main.route('/create_post', methods=['POST'])
+def create_post():
+    print("post creation", request.form)
+    if request.form.get('action') == "Create Post":
+        text = "test post"
+        contents = "test"
+        topic_list = "topic1,topic2,topic3"
+        new_post = Post(user_id=current_user.id,
+                        contents=contents, topic_list=topic_list)
+        db.session.add(new_post)
+        db.session.commit()
+    # TODO: Display some sort of post creation message
+    return redirect(url_for('main.profile'))
+    
+@main.route('/delete_post', methods=['POST'])
 @login_required
 def delete_post():
-    post_id = 0 # set this to request form value
+    post_id = 3 # set this to request form value
+    print("deleting post: ", post_id)
     if request.form.get('action') == "Delete Post":
-        obj = Post.query.filter_by(id=post_id)
+        obj = Post.query.filter_by(id=post_id).one()
         db.session.delete(obj)
         db.session.commit()
     # TODO: Display some sort of post deletion message 
