@@ -6,4 +6,5 @@ The problem of not having a social networking application that pulls elements fr
 ### Important Links
 Find a breakdown of user stories in the [Product Backlog ](https://docs.google.com/document/d/1EaFGhafJff10VELDWm531yrX4vTATiyffsPnwdKP1bs/edit).  
 Find design specifications in the [Design Document](https://docs.google.com/document/d/1lYZ9qQd66wIMCNOC0bPERvUjC4TKY0PhmOpuiWVGUBU/edit).  
+UI Goals and specifications are outlined on our [Figma Doc](https://www.figma.com/file/B2E5Ph3elMdBouhWwEo3dg/WebApp-Mock?node-id=0%3A1).  
 Sprint 1 details are listed in the [Sprint #1 Planning Doc](https://docs.google.com/document/d/1kJqO51eTvSvpgxgyYyyzGd3NwsEluKbiBU92ocFw9xs/edit).  
