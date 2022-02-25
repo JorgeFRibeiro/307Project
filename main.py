@@ -4,6 +4,7 @@ from flask_login import login_required, current_user
 from numpy import delete
 from .models import User, Post
 from . import db
+from werkzeug.security import generate_password_hash
 
 main = Blueprint('main', __name__)
 
@@ -49,18 +50,24 @@ def show_edit_profile():
 @login_required
 def update_profile():
     if request.form.get('action') == "Edit Profile":
+
+        email = request.form.get('email')
+        password = generate_password_hash(request.form.get('password'), method='sha256')
         name = request.form.get('name')
         bio = request.form.get('bio')
 
+        if not email:
+            email = current_user.email
+        if not password:
+            password = current_user.password
         if not name:
             name = current_user.name
         if not bio:
             bio = current_user.bio
 
-        email = current_user.email
-        password = current_user.password
-
         user = User.query.filter_by(email=email).first() 
+        user.email = email
+        user.password = password
         user.name = name
         user.bio = bio 
         db.session.merge(user)
