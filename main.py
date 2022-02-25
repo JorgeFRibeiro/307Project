@@ -1,4 +1,3 @@
-from ast import BinOp
 import re
 from flask import Blueprint, redirect, render_template, request, url_for
 from flask_login import login_required, current_user
@@ -50,28 +49,20 @@ def show_edit_profile():
 @login_required
 def update_profile():
     if request.form.get('action') == "Edit Profile":
-        email = request.form.get('email')
-        password = request.form.get('password')
         name = request.form.get('name')
         bio = request.form.get('bio')
 
-        if not email:
-            email = current_user.email
-        if not password:
-            password = current_user.password
         if not name:
             name = current_user.name
         if not bio:
             bio = current_user.bio
 
+        email = current_user.email
+        password = current_user.password
+
         user = User.query.filter_by(email=email).first() 
-        print(user)
-        user.email = email
-        user.password = password
         user.name = name
-        user.bio = bio
-        print("REACHED")
-        #user = User(email=email, name=name, password=generate_password_hash(password, method='sha256')) 
+        user.bio = bio 
         db.session.merge(user)
         db.session.flush()
         db.session.commit()
