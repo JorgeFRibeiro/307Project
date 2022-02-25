@@ -105,6 +105,13 @@ def delete_post():
     return redirect(url_for('main.profile')) 
 
 
+#Temporary gateway to view posts temporary display NOT FINAL
+@main.route('/view_temp', methods=['POST'])
+@login_required
+def view_temp():
+    return render_template('posttemp.html')
+
+
 def get_urls(contents):
     url_list = re.findall(r'(https?://[^\s]+)', contents)
     return url_list
