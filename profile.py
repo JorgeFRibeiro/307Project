@@ -84,7 +84,7 @@ def follow_user(id):
     return redirect(url_for('prof.view_profile', id=id))
     # Following another dude TEMP
 
-@prof.route('/follow_user/<id>')
+@prof.route('/unfollow_user/<id>')
 def unfollow_user(id):
     # id of user to be unfollowed should be supplied by whatever is calling this
     #print(id)
