@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="column is-4 is-offset-4">
+  <h1 class="title">User Info</h1>
+  <div class="box">
+      <!-- TODO: Add PFP display functionality -->
+
+      <h3>Name: {{ name }}</h3>
+
+      <h3>Bio: {{ bio }}</h3>
+  </div>
+
+  <!-- TODO: FOLLOWING FUNCTIONALITY    -->
+  <!-- Buttons do nothing at the moment -->
+  <!-- Maybe show different button based on if user is being followed or not atm? -->
+  <!-- Will need some way to query db to see if user is being followed though -->
+  <!-- Probably with inline python and support from database to see followed users -->
+  {% if current_user.is_authenticated %}
+  <h1 class="title">Actions</h1>
+  <div class="box">
+    <!-- id of user to follow/unfollow is supplied with {{ id }}    -->
+    <!-- since it is given to it by the view_profile() function     -->
+    <form action="/follow_user/{{ id }}">
+      <button class="button is-block is-info is-large is-fullwidth" value="Follow User" name="action" button
+        style="margin:5px;">Follow User</button>
+    </form>
+
+    <form action="/unfollow_user/{{ id }}">
+      <button class="button is-block is-info is-large is-fullwidth" value="Unfollow User" name="action" button
+        style="margin:5px;">Unfollow User</button>
+    </form>
+  </div>
+  {% endif %}
+  
+</div>
+
+{% endblock %}

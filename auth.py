@@ -37,7 +37,7 @@ def login_post():
     login_user(user, remember=remember)
 
     # Good2go login and send user to profile
-    return redirect(url_for('main.profile'))
+    return redirect(url_for('prof.profile'))
 
 
 # TODO: Continue as Guest functionality for the login page

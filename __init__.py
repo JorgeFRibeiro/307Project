@@ -39,8 +39,16 @@ def create_app():
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
 
-    # blueprint for non-auth parts of app
+    # blueprint for main runner of app
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+
+    # blueprint for profile related features
+    from .profile import prof as prof_blueprint
+    app.register_blueprint(prof_blueprint)
+
+    # blueprint for post related functions
+    from .posts import posts as posts_blueprint
+    app.register_blueprint(posts_blueprint)
 
     return app
