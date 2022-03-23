@@ -1,5 +1,5 @@
 import re
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask_login import login_required, current_user
 from numpy import delete
 from .models import User, Post
@@ -74,18 +74,35 @@ def update_profile():
 @prof.route('/view_profile/<id>')
 def view_profile(id):
     user_to_view = User.query.get(id)
-    return render_template('other_profile_view.html', name = user_to_view.name, bio = user_to_view.bio, id = user_to_view.id)
+    return render_template('other_profile_view.html', user = user_to_view, name = user_to_view.name, bio = user_to_view.bio, id = user_to_view.id)
 
-# Following another dude TEMP
+# Following another dude
 @prof.route('/follow_user/<id>')
 def follow_user(id):
     # id of user to be followed should be supplied by whatever is calling this
     #print(id)
+    user = User.query.filter_by(id=id).first()
+    if current_user.is_following(user):
+        flash('Hey buddy I know you like this guy, but you\'re already following them')
+        return redirect(url_for('prof.view_profile', id=id))
+    if user == current_user:
+        flash('Hey dude u cant follow yourself, like ur not that cool')
+        return redirect(url_for('prof.view_profile', id=id))
+    current_user.follow(user)
+    flash('You are following {}!'.format(user.name))
+    db.session.commit()
     return redirect(url_for('prof.view_profile', id=id))
-    # Following another dude TEMP
 
+# Unfollowing another dude
 @prof.route('/unfollow_user/<id>')
 def unfollow_user(id):
     # id of user to be unfollowed should be supplied by whatever is calling this
     #print(id)
+    user = User.query.filter_by(id=id).first()
+    if user is None:
+        return redirect(url_for('index', id=id))
+    if user == current_user:
+        return redirect(url_for('user', id=id))
+    current_user.unfollow(user)
+    db.session.commit()
     return redirect(url_for('prof.view_profile', id=id))
