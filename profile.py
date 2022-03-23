@@ -12,7 +12,7 @@ prof = Blueprint('prof', __name__)
 @prof.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html', name = current_user.name, bio = current_user.bio)
+    return render_template('profile.html', name = current_user.name, bio = current_user.bio, id = current_user.id)
 
 # Edit Profile Page
 @prof.route('/edit_profile')
