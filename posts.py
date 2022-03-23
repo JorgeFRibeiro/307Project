@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import re
 from flask import Blueprint, redirect, render_template, request, url_for
 from flask_login import login_required, current_user
@@ -41,6 +42,41 @@ def delete_post():
 @login_required
 def view_temp():
     return render_template('posttemp.html')
+
+#Temporary function to get html to display a post
+#TODO implement this function to actually get post converted to html
+def post_to_html(post_id):
+    #Currently done as <h3> because that is what lines up with in where the 
+    #Post html is placed in timeline.html
+    return "<h3>This is a post</h3>"
+
+# TODO function to get all posts' id's of all topics a user is following
+# Return Null if no topics followed
+def get_posts_topics_followed(user_id):
+    # For now just returns a list of 0->9
+    return list(range(10))
+
+# TODO function to get all posts' id's of all users a user is following
+# Return Null if no users followed
+def get_posts_users_followed(user_id):
+    # For now just returns a list of 0->9
+    return list(range(10))
+
+# Display the timeline of a user
+@posts.route('/disp_timeline/<id>/<post_num>/<type>')
+def disp_timeline(id, post_num, type):
+    # Converts a given post to its corresponding html to be placed in timeline.html
+    # by using post_list, which is a list of post id's, indexed by post_num
+    post_list = NULL
+    if (type == "Topic"):
+        post_list = get_posts_topics_followed(id)
+    elif (type == "Users"):
+        post_list = get_posts_users_followed(id)
+    post_num = int(post_num)
+    list_len = len(post_list)
+    post_html = post_to_html(post_list[post_num])
+
+    return render_template('timeline.html', id=id, post_num=post_num, post_html=post_html, type=type, list_len=list_len)
 
 
 def get_urls(contents):
