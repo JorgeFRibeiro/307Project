@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import re
 from flask import Blueprint, redirect, render_template, request, url_for
 from flask_login import login_required, current_user
@@ -8,6 +7,7 @@ from werkzeug.security import generate_password_hash
 
 posts = Blueprint('posts', __name__)
 
+NULL = 0
 
 # Post related functions
 @posts.route('/create_post', methods=['POST'])
