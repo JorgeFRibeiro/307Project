@@ -1,12 +1,16 @@
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+import os
+from flask_mail import Mail
 
 # Database created
 db = SQLAlchemy()
 def create_app():
+    global app 
+    global mail
     app = Flask(__name__)
-
+    # mail.init_app(app)
     @app.before_first_request
     def create_tables():
         db.create_all()
@@ -22,6 +26,23 @@ def create_app():
     app.config['SECRET_KEY'] = 'secret-key'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 
+        # main config
+    app.config['SECURITY_PASSWORD_SALT'] = 'my_precious_two'
+
+    # mail settings
+    app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+    app.config['MAIL_PORT'] = 465
+    app.config['MAIL_USE_TLS'] = False
+    app.config['MAIL_USE_SSL'] = True
+
+    # gmail authentication
+    app.config['MAIL_USERNAME'] = os.environ['APP_MAIL_USERNAME']
+    app.config['MAIL_PASSWORD'] = os.environ['APP_MAIL_PASSWORD']
+
+    # mail accounts
+    app.config['MAIL_DEFAULT_SENDER'] = 'gtmraghu2@gmail.com'
+
+    mail = Mail(app)
     db.init_app(app)
 
     login_manager = LoginManager()
