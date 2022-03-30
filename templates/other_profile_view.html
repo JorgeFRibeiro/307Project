@@ -14,6 +14,19 @@
       <h3>Followers: {{ user.followers.count() }}  Following: {{ user.followed.count() }}</h3>
   </div>
 
+  <h1 class="title">Userline</h1>
+  <div class="box">
+    <form action="/disp_timeline/{{ id }}/0/Posts">
+      <button class="button is-block is-info is-large is-fullwidth" value="Post Activity" name="action" button
+        style="margin:5px;">View user's post activity</button>
+    </form>
+
+    <form action="/disp_timeline/{{ id }}/0/Interactions">
+      <button class="button is-block is-info is-large is-fullwidth" value="Interactions" name="action" button
+        style="margin:5px;">View user's post interactions</button>
+    </form>
+  </div>
+
   <!-- TODO: FOLLOWING FUNCTIONALITY    -->
   <!-- Buttons do nothing at the moment -->
   <!-- Maybe show different button based on if user is being followed or not atm? -->

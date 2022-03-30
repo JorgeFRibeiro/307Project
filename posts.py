@@ -50,13 +50,36 @@ def post_to_html(post_id):
     #Post html is placed in timeline.html
     return "<h3>This is a post</h3>"
 
+# TODO function to get all comments a user made
+def get_comments_user(user_id):
+    # For now just returns a list of 0->9
+    return list(range(10))
+
+# TODO function to get all of a user's interactions with other posts
+#      this will use get_comments_user()
+# Return Null if error
+def get_interactions_user(user_id):
+    # Get things like comments, saving a post, reactions
+    # and append them to each other
+
+    # Then convert to html (special way for this specific grabber)
+    # ^^^^ is to be done though
+    return list(range(10))
+
 # TODO function to get all posts' id's of all topics a user is following
 # Return Null if no topics followed
 def get_posts_topics_followed(user_id):
     # For now just returns a list of 0->9
     return list(range(10))
 
+# TODO function to get all posts of a user
+# Return Null if no/wrong id
+def get_posts_user(user_id):
+    # For now just returns a list of 0->9
+    return list(range(10))
+
 # TODO function to get all posts' id's of all users a user is following
+#      will end up using get_posts_user()
 # Return Null if no users followed
 def get_posts_users_followed(user_id):
     # For now just returns a list of 0->9
@@ -65,13 +88,20 @@ def get_posts_users_followed(user_id):
 # Display the timeline of a user
 @posts.route('/disp_timeline/<id>/<post_num>/<type>')
 def disp_timeline(id, post_num, type):
-    # Converts a given post to its corresponding html to be placed in timeline.html
-    # by using post_list, which is a list of post id's, indexed by post_num
+    # Uses post_to_html, which converts a given post to its corresponding 
+    # html to be placed in timeline.html by using post_list, which is a 
+    # list of post id's, indexed by post_num
     post_list = NULL
     if (type == "Topic"):
         post_list = get_posts_topics_followed(id)
     elif (type == "Users"):
         post_list = get_posts_users_followed(id)
+    elif (type == "Posts"):
+        post_list = get_posts_user(id)
+    elif (type == "Interactions"):
+        return render_template('index.html') # temporary redirect
+
+    # TODO add another elif for getting interactions
     post_num = int(post_num)
     list_len = len(post_list)
     post_html = post_to_html(post_list[post_num])
