@@ -3,6 +3,7 @@ from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask_login import login_required, current_user
 from numpy import delete
 from .models import User, Post
+from .posts import post_to_html
 from . import db
 from werkzeug.security import generate_password_hash
 
@@ -12,7 +13,8 @@ prof = Blueprint('prof', __name__)
 @prof.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html', name = current_user.name, bio = current_user.bio, id = current_user.id)
+    # TODO: post_to_html parameter is only for testing purposes, REMOVE 
+    return render_template('profile.html', name = current_user.name, bio = current_user.bio, id = current_user.id, post_to_html=post_to_html)
 
 # Edit Profile Page
 @prof.route('/edit_profile')

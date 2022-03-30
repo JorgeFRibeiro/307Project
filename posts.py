@@ -44,11 +44,45 @@ def view_temp():
     return render_template('posttemp.html')
 
 #Temporary function to get html to display a post
-#TODO implement this function to actually get post converted to html
+#TODO in profile.html in the Posts column, there is a placeholder call to this function
+# in profile.py under the profile() function, you can find where the function is linked to the html
 def post_to_html(post_id):
     #Currently done as <h3> because that is what lines up with in where the 
     #Post html is placed in timeline.html
-    return "<h3>This is a post</h3>"
+    obj = Post.query.get(post_id)
+    contents = obj.contents
+    topics = obj.topic_list.split(',')
+    username = current_user.name
+    print(obj)
+    print(obj.user_id)
+    html_string = "<div class=\"box\"> \
+    <article class=\"media\">\
+      <figure class=\"media-left\">\
+        <p class=\"image is-64x64\">\
+          <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
+        </p>\
+      </figure>\
+      <div class=\"media-content\">\
+        <div class=\"content\">\
+          <p>\
+            <strong>{}</strong> <small>@placeholder</small> <small>31m</small>\
+            <br>\
+            {}\
+          </p>\
+        </div>\
+        <nav class=\"level is-mobile\">\
+          <div class=\"level-left\">\
+            <button class=\"button is-ghost\">edit</button>\
+          </div>\
+        </nav>\
+      </div>\
+      <div class=\"media-right\">\
+        <button class=\"delete\"></button>\
+      </div>\
+    </article>\
+ </div>".format(username, contents)  
+ 
+    return html_string
 
 # TODO function to get all comments a user made
 def get_comments_user(user_id):
