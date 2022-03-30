@@ -74,7 +74,7 @@ def update_profile():
 @prof.route('/view_profile/<id>')
 def view_profile(id):
     user_to_view = User.query.get(id)
-    return render_template('other_profile_view.html', user = user_to_view, name = user_to_view.name, bio = user_to_view.bio, id = user_to_view.id)
+    return render_template('other_profile_view.html', user = user_to_view, name = user_to_view.name, bio = user_to_view.bio, id = id)
 
 # Following another dude
 @prof.route('/follow_user/<id>')
