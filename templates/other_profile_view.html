@@ -19,12 +19,12 @@
 
   <h1 class="title">Userline</h1>
   <div class="box">
-    <form action="/disp_timeline/{{ id }}/0/Posts">
+    <form action="/disp_userline/{{ id }}/0/Posts">
       <button class="button is-block is-info is-large is-fullwidth" value="Post Activity" name="action" button
         style="margin:5px;">View user's post activity</button>
     </form>
 
-    <form action="/disp_timeline/{{ id }}/0/Interactions">
+    <form action="/disp_userline/{{ id }}/0/Interactions">
       <button class="button is-block is-info is-large is-fullwidth" value="Interactions" name="action" button
         style="margin:5px;">View user's post interactions</button>
     </form>
@@ -55,5 +55,13 @@
   {% endif %}
   
 </div>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-danger">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
 
 {% endblock %}

@@ -85,8 +85,7 @@ def post_to_html(post_id):
 
 # TODO function to get all comments a user made
 def get_comments_user(user_id):
-    # For now just returns a list of 0->9
-    return list(range(10))
+    return NULL
 
 # TODO function to get all of a user's interactions with other posts
 #      this will use get_comments_user()
@@ -97,7 +96,7 @@ def get_interactions_user(user_id):
 
     # Then convert to html (special way for this specific grabber)
     # ^^^^ is to be done though
-    return list(range(10))
+    return NULL
 
 # TODO function to get all posts' id's of all topics a user is following
 # Return Null if no topics followed
@@ -118,7 +117,7 @@ def get_posts_topics_followed(user_id):
 # Return Null if no/wrong id
 def get_posts_user(user_id):
     # For now just returns a list of 0->9
-    posts_for_user = Post.query.filter_by(user_id=current_user.id)
+    posts_for_user = Post.query.filter_by(user_id=user_id)
     result = []
     for post in posts_for_user:
       result.append(post.id)
@@ -129,8 +128,14 @@ def get_posts_user(user_id):
 # Return Null if no users followed
 def get_posts_users_followed(user_id):
     # For now just returns a list of 0->9
-    return NULL
+    cur_user = User.query.get(user_id)
+    users = cur_user.followed.all()
+    result = []
+    for user in users:
+      result += get_posts_user(user.id)
+    return result
 
+# Display the timeline of a user
 @posts.route('/disp_userline/<id>/<post_num>/<type>')
 def disp_userline(id, post_num, type):
     # Uses post_to_html, which converts a given post to its corresponding 
@@ -140,9 +145,10 @@ def disp_userline(id, post_num, type):
     if (type == "Posts"):
         post_list = get_posts_user(id)
     elif (type == "Interactions"):
-        return render_template('index.html') # temporary redirect
-    #if (post_list == NULL or len(post_list) == 0):
-        
+        post_list = get_interactions_user(id)
+    if (post_list == NULL or len(post_list) == 0):
+        flash('User has no content of that type')
+        return redirect(url_for('prof.view_profile', id=id))
 
     # TODO add another elif for getting interactions
     post_num = int(post_num)
