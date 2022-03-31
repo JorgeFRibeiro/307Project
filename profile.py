@@ -123,4 +123,4 @@ def follow_topic(id):
         return redirect(url_for('prof.view_topic', id=id))
     current_user.follow_topic(topic);
     db.session.commit()
-    return redirect(url_for('prof.view_topic', id))
+    return redirect(url_for('prof.view_topic', id=id))
