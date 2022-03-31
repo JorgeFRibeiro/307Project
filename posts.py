@@ -155,7 +155,7 @@ def disp_userline(id, post_num, type):
     list_len = len(post_list)
     post_html = post_to_html(post_list[post_num])
 
-    return render_template('timeline.html', id=id, post_num=post_num, post_html=post_html, type=type, list_len=list_len)
+    return render_template('userline.html', id=id, post_num=post_num, post_html=post_html, type=type, list_len=list_len)
 
 
 # Display the timeline of a user
