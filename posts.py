@@ -131,9 +131,12 @@ def get_posts_users_followed(user_id):
     # For now just returns a list of 0->9
     cur_user = User.query.get(user_id)
     users = cur_user.followed.all()
-    result = []
+    if len(users) == 0:
+      flash('No followed?')    
+    result = list()
     for user in users:
-      result += get_posts_user(user.id)
+      for post in get_posts_user(user.id):   
+        result.append(post)
     return result
 
 # Display the timeline of a user
