@@ -53,8 +53,7 @@ def post_to_html(post_id):
     contents = obj.contents
     topics = obj.topic_list.split(',')
     username = current_user.name
-    print(obj)
-    print(obj.user_id)
+    
     html_string = "<div class=\"box\"> \
     <article class=\"media\">\
       <figure class=\"media-left\">\
@@ -119,7 +118,11 @@ def get_posts_topics_followed(user_id):
 # Return Null if no/wrong id
 def get_posts_user(user_id):
     # For now just returns a list of 0->9
-    return list(range(10))
+    posts_for_user = Post.query.filter_by(user_id=current_user.id)
+    result = []
+    for post in posts_for_user:
+      result.append(post.id)
+    return result
 
 # TODO function to get all posts' id's of all users a user is following
 #      will end up using get_posts_user()
