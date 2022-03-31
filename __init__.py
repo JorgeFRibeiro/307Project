@@ -40,7 +40,7 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.environ['APP_MAIL_PASSWORD']
 
     # mail accounts
-    app.config['MAIL_DEFAULT_SENDER'] = 'gtmraghu2@gmail.com'
+    app.config['MAIL_DEFAULT_SENDER'] = 'purduecircle265@gmail.com'
 
     mail = Mail(app)
     db.init_app(app)
