@@ -50,9 +50,10 @@ def post_to_html(post_id):
     #Currently done as <h3> because that is what lines up with in where the 
     #Post html is placed in timeline.html
     obj = Post.query.get(post_id)
+    user_for_post = User.query.get(obj.user_id)
     contents = obj.contents
     topics = obj.topic_list.split(',')
-    username = current_user.name
+    username = user_for_post.name
     
     html_string = "<div class=\"box\"> \
     <article class=\"media\">\
