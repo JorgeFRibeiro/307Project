@@ -118,7 +118,7 @@ def get_posts_topics_followed(user_id):
 # Return Null if no/wrong id
 def get_posts_user(user_id):
     # For now just returns a list of 0->9
-    posts_for_user = Post.query.filter_by(user_id=current_user.id)
+    posts_for_user = Post.query.filter_by(user_id=user_id)
     result = []
     for post in posts_for_user:
       result.append(post.id)
@@ -129,7 +129,12 @@ def get_posts_user(user_id):
 # Return Null if no users followed
 def get_posts_users_followed(user_id):
     # For now just returns a list of 0->9
-    return list(range(10))
+    cur_user = User.query.get(user_id)
+    users = cur_user.followed.all()
+    result = []
+    for user in users:
+      result += get_posts_user(user.id)
+    return result
 
 # Display the timeline of a user
 @posts.route('/disp_timeline/<id>/<post_num>/<type>')
