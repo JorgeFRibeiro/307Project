@@ -2,7 +2,7 @@ import re
 from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask_login import login_required, current_user
 from numpy import delete
-from .models import User, Post
+from .models import User, Post, Topic
 from .posts import post_to_html
 from . import db
 from werkzeug.security import generate_password_hash
@@ -76,7 +76,7 @@ def update_profile():
 @prof.route('/view_profile/<id>')
 def view_profile(id):
     user_to_view = User.query.get(id)
-    return render_template('other_profile_view.html', user = user_to_view, name = user_to_view.name, bio = user_to_view.bio, id = id)
+    return render_template('other_profile_view.html', user = user_to_view, name = user_to_view.name, bio = user_to_view.bio, id = id, followed_topics = list(user_to_view.followed_topics))
 
 # Following another dude
 @prof.route('/follow_user/<id>')
@@ -108,3 +108,19 @@ def unfollow_user(id):
     current_user.unfollow(user)
     db.session.commit()
     return redirect(url_for('prof.view_profile', id=id))
+
+# View a topic
+@prof.route('/view_topic/<id>')
+def view_topic(id):
+    topic_to_view = Topic.query.get(id)
+    return render_template('topic.html', name = topic_to_view.name, id = id)
+
+@prof.route('/follow_topic/<id>')
+def follow_topic(id):
+    topic = Topic.query.filter_by(id=id).first()
+    if current_user.is_following_topic(topic):
+        flash('topic is already followed')
+        return redirect(url_for('prof.view_topic', id=id))
+    current_user.follow_topic(topic);
+    db.session.commit()
+    return redirect(url_for('prof.view_topic', id))

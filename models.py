@@ -14,13 +14,13 @@ followers = db.Table('followers',
 # Topics association table, foreign key -> link btw two tables
 user_topic = db.Table('user_topic',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('topic_id', db.integer, db.ForeignKey('topic.id'))
+    db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'))
 )
 
 # Topics association table, foreign key -> link btw two tables
 post_topic = db.Table('post_topic',
     db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
-    db.Column('topic_id', db.integer, db.ForeignKey('topic.id'))
+    db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'))
 )
 
 class User(UserMixin, db.Model):
@@ -33,7 +33,19 @@ class User(UserMixin, db.Model):
     bio = db.Column(db.String(1000))
     # End of warning
 
-    followed_topics = db.relationship('Topic', secondary=user_topic, backref='followed_by')
+    followed_topics = db.relationship('Topic', secondary=user_topic, backref='followed_by', lazy='dynamic')
+
+    def is_following_topic(self, topic):
+               #return self.followed_topics.filter(user_topic.topic_id == topic).count() > 0 
+           return False;
+
+    def follow_topic(self, topic):
+        if not self.is_following_topic(topic):
+            self.followed_topics.append(topic)
+
+    def unfollow_topic(self, topic):
+        if self.is_following_topic(topic):
+            self.followed_topics.remove(topic)
 
     # Included many to many follower relationship
     followed = db.relationship(
@@ -42,9 +54,6 @@ class User(UserMixin, db.Model):
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic'
     )
-
-    def posts_with_followed_topics(self):
-        #TODO
 
     # Adding follower
     def follow(self, user):
@@ -82,5 +91,5 @@ class Post(UserMixin, db.Model):
 class Topic(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
-    posts = db.relationship('Posts', secondary=post_topic, backref='tags_mentioned')
-    users = db.relationship('Users', secondary=user_topic, backref='tags_followed')
+    posts = db.relationship('Post', secondary=post_topic, backref='tags_mentioned')
+    users = db.relationship('User', secondary=user_topic, backref='tags_followed')

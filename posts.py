@@ -1,7 +1,7 @@
 import re
 from flask import Blueprint, redirect, render_template, request, url_for
 from flask_login import login_required, current_user
-from .models import User, Post
+from .models import User, Post, Topic
 from . import db
 from werkzeug.security import generate_password_hash
 
@@ -104,7 +104,16 @@ def get_interactions_user(user_id):
 # Return Null if no topics followed
 def get_posts_topics_followed(user_id):
     # For now just returns a list of 0->9
-    return list(range(10))
+    user = User.query.filter_by(id=user_id)
+    topics = user.followed_topics
+    post_ids = list()
+
+    for topic_id in topics:
+          topic = Topic.query.filter_by(id=topic_id)
+          for post in topic.post:
+            post_ids.append(post)
+
+    return post_ids
 
 # TODO function to get all posts of a user
 # Return Null if no/wrong id
