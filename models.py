@@ -37,7 +37,7 @@ class User(UserMixin, db.Model):
 
     def is_following_topic(self, topic):
                #return self.followed_topics.filter(user_topic.topic_id == topic).count() > 0 
-           return False;
+           return False
 
     def follow_topic(self, topic):
         if not self.is_following_topic(topic):

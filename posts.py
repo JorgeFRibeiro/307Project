@@ -1,5 +1,5 @@
 import re
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask_login import login_required, current_user
 from .models import User, Post, Topic
 from . import db
@@ -129,7 +129,28 @@ def get_posts_user(user_id):
 # Return Null if no users followed
 def get_posts_users_followed(user_id):
     # For now just returns a list of 0->9
-    return list(range(10))
+    return NULL
+
+@posts.route('/disp_userline/<id>/<post_num>/<type>')
+def disp_userline(id, post_num, type):
+    # Uses post_to_html, which converts a given post to its corresponding 
+    # html to be placed in timeline.html by using post_list, which is a 
+    # list of post id's, indexed by post_num
+    post_list = NULL
+    if (type == "Posts"):
+        post_list = get_posts_user(id)
+    elif (type == "Interactions"):
+        return render_template('index.html') # temporary redirect
+    #if (post_list == NULL or len(post_list) == 0):
+        
+
+    # TODO add another elif for getting interactions
+    post_num = int(post_num)
+    list_len = len(post_list)
+    post_html = post_to_html(post_list[post_num])
+
+    return render_template('timeline.html', id=id, post_num=post_num, post_html=post_html, type=type, list_len=list_len)
+
 
 # Display the timeline of a user
 @posts.route('/disp_timeline/<id>/<post_num>/<type>')
@@ -142,10 +163,9 @@ def disp_timeline(id, post_num, type):
         post_list = get_posts_topics_followed(id)
     elif (type == "Users"):
         post_list = get_posts_users_followed(id)
-    elif (type == "Posts"):
-        post_list = get_posts_user(id)
-    elif (type == "Interactions"):
-        return render_template('index.html') # temporary redirect
+    if (post_list == NULL or len(post_list) == 0):
+        flash('User has no content of that type')
+        return redirect(url_for('prof.profile'))
 
     # TODO add another elif for getting interactions
     post_num = int(post_num)
