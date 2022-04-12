@@ -43,9 +43,7 @@ def delete_post():
 def view_temp():
     return render_template('posttemp.html')
 
-#Temporary function to get html to display a post
-#TODO in profile.html in the Posts column, there is a placeholder call to this function
-# in profile.py under the profile() function, you can find where the function is linked to the html
+#Function to get html to display a post
 def post_to_html(post_id):
     #Currently done as <h3> because that is what lines up with in where the 
     #Post html is placed in timeline.html
@@ -65,14 +63,17 @@ def post_to_html(post_id):
       <div class=\"media-content\">\
         <div class=\"content\">\
           <p>\
-            <strong>{}</strong> <small>@placeholder</small> <small>31m</small>\
-            <br>\
-            {}\
-          </p>\
+            <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
+            <br>" + str(contents) + "</p>\
         </div>\
         <nav class=\"level is-mobile\">\
           <div class=\"level-left\">\
             <button class=\"button is-ghost\">edit</button>\
+          </div>\
+          <div class=\"level-right\">\
+            <form action=\"/see_full_post/"+str(post_id)+"\">\
+              <button>post details</button>\
+            </form>\
           </div>\
         </nav>\
       </div>\
@@ -80,7 +81,7 @@ def post_to_html(post_id):
         <button class=\"delete\"></button>\
       </div>\
     </article>\
- </div>".format(username, contents)  
+ </div>"
  
     return html_string
 
@@ -102,7 +103,6 @@ def get_interactions_user(user_id):
 # TODO function to get all posts' id's of all topics a user is following
 # Return Null if no topics followed
 def get_posts_topics_followed(user_id):
-    # For now just returns a list of 0->9
     user = User.query.filter_by(id=user_id)
     topics = user.followed_topics
     post_ids = list()
@@ -117,7 +117,6 @@ def get_posts_topics_followed(user_id):
 # TODO function to get all posts of a user
 # Return Null if no/wrong id
 def get_posts_user(user_id):
-    # For now just returns a list of 0->9
     posts_for_user = Post.query.filter_by(user_id=user_id)
     result = []
     for post in posts_for_user:
@@ -128,7 +127,6 @@ def get_posts_user(user_id):
 #      will end up using get_posts_user()
 # Return Null if no users followed
 def get_posts_users_followed(user_id):
-    # For now just returns a list of 0->9
     cur_user = User.query.get(user_id)
     users = cur_user.followed.all()
     if len(users) == 0:

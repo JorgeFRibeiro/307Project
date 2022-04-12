@@ -72,6 +72,51 @@ def update_profile():
         db.session.commit()
     return redirect(url_for('prof.profile'))
 
+# Function to turn a user into some html usable text
+def user_to_html(user_id):
+    user_to_view = User.query.get(user_id)
+
+    # Grab and shorten bio if need be
+    bio = user_to_view.bio
+    if (isinstance(bio, type(None))):
+        bio = "None"
+    if (len(bio) > 20):
+        bio = bio[0:20] + "..."
+    # html conversion
+    html_string =  "<div class=\"box\">\
+                        <h3>Name: " + str(user_to_view.name) + "</h3>\
+                        <h3>Bio: " + str(bio) + "</h3>\
+                        <form action=\"/view_profile/" + str(user_id) + "\">\
+                            <button>View this User</button>\
+                        </form>\
+                    </div>"
+ 
+    return html_string
+
+
+# Create a list of all the possible people a user could have been searching for
+@prof.route('/search_user', methods=['GET'])
+def search_user():
+    # Grab what username was searched for, put list of possible users into possible_people
+    username = request.args.get('search')
+    possible_people = User.query.filter_by(name=username).all()
+    print(possible_people)
+    everyone_get_in_here = ""
+
+    # Using list of possible users, turn all users into html strings with their id's
+    for i in range(len(possible_people)):
+        id_cur = possible_people[i].id
+        print(id_cur)
+        everyone_get_in_here += user_to_html(id_cur)
+
+    # String will be empty if no possible users were found, add the error
+    if (len(everyone_get_in_here) == 0):
+        everyone_get_in_here += "<div class=\"box\">\
+                                    <h3>No Users of that username were found!</h3>\
+                                 </div>"
+    return render_template('search_users.html', users_string = everyone_get_in_here)
+    
+
 # View another user's profile
 @prof.route('/view_profile/<id>')
 def view_profile(id):
