@@ -166,6 +166,10 @@ def follow_topic(id):
     if current_user.is_following_topic(topic):
         flash('topic is already followed')
         return redirect(url_for('prof.view_topic', id=id))
-    current_user.follow_topic(topic);
+    current_user.follow_topic(topic)
     db.session.commit()
     return redirect(url_for('prof.view_topic', id=id))
+
+@prof.route('/chat_with/<id>')
+def chat_with(id):
+    return render_template('starting_template.html', id=id)
