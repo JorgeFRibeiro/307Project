@@ -51,12 +51,16 @@
                             </a>
                             {% endif %}
 
+                            <a href="{{ url_for('topics.all_topics_page') }}" class="navbar-item">
+                                Topics
+                            </a>
+
                             <div class="search-container">
                                 <form action="/search_user">
                                   <input type="text" placeholder="Search a User.." id="uname"name="search">
                                   <button type="submit">Submit</button>
                                 </form>
-                              </div>
+                            </div>
                         </div>
                     </div>
                 </div>
