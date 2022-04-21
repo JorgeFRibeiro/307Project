@@ -5,11 +5,11 @@ from . import db
 
 topics = Blueprint('topics', __name__)
 
-# Gets a list of all topics
+# Gets a list of all topic ids
 def existing_topics():
     topic_list = []
-    for topic_name in Topic.query(Topic.name).distinct():
-        topic_list.append(topic_name)
+    for topic in Topic.query:
+        topic_list.append(topic.id)
     return topic_list
 
 # Convert topic to html for box in all-topics page
