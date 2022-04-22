@@ -14,7 +14,10 @@ prof = Blueprint('prof', __name__)
 @login_required
 def profile():
     # TODO: post_to_html parameter is only for testing purposes, REMOVE 
-    return render_template('profile.html', name = current_user.name, bio = current_user.bio, id = current_user.id, post_to_html=post_to_html)
+    topic_list = []
+    for topic_obj in current_user.followed_topics.all():
+        topic_list.append(topic_obj.name)
+    return render_template('profile.html', name = current_user.name, bio = current_user.bio, id = current_user.id, followed_topics = topic_list, post_to_html=post_to_html)
 
 # Edit Profile Page
 @prof.route('/edit_profile')
@@ -162,11 +165,11 @@ def view_topic(id):
 
 @prof.route('/follow_topic/<id>')
 def follow_topic(id):
-    topic = Topic.query.filter_by(id=id).first()
-    if current_user.is_following_topic(topic):
-        flash('topic is already followed')
+    #topic = Topic.query.filter_by(id=id).first()
+    if current_user.is_following_topic(id):
+        flash('This topic is already followed!')
         return redirect(url_for('prof.view_topic', id=id))
-    current_user.follow_topic(topic)
+    current_user.follow_topic(id)
     db.session.commit()
     return redirect(url_for('prof.view_topic', id=id))
 

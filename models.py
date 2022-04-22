@@ -32,15 +32,17 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(1000))
     bio = db.Column(db.String(1000))
     # End of warning
-
     followed_topics = db.relationship('Topic', secondary=user_topic, backref='followed_by', lazy='dynamic')
 
     def is_following_topic(self, topic):
-               #return self.followed_topics.filter(user_topic.topic_id == topic).count() > 0 
-           return False
+        query_user_topic = User.query.join(user_topic).join(Topic).filter((user_topic.c.user_id == self.id) & (user_topic.c.topic_id == topic)).count()
+        if query_user_topic > 0:
+            return True
+        return False
 
-    def follow_topic(self, topic):
-        if not self.is_following_topic(topic):
+    def follow_topic(self, id):
+        if not self.is_following_topic(id):
+            topic = Topic.query.filter_by(id=id).first()
             self.followed_topics.append(topic)
 
     def unfollow_topic(self, topic):
