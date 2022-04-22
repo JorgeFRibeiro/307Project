@@ -54,7 +54,7 @@ def post_to_html(post_id):
     print(obj.user_id)
     user_for_post = User.query.filter_by(id=obj.user_id).first()
     contents = obj.contents
-    topics = obj.topic_list.split(',')
+    # topics = obj.topic_list.split(',') // no longer needed, switched to post_topic rdb
     username = user_for_post.name
     
     html_string = "<div class=\"box\"> \
@@ -186,6 +186,8 @@ def disp_timeline(id, post_num, type):
     # TODO add another elif for getting interactions
     post_num = int(post_num)
     list_len = len(post_list)
+    print("LIST LEN:")
+    print(list_len)
     post_html = post_to_html(post_list[post_num])
 
     return render_template('timeline.html', id=id, post_num=post_num, post_html=post_html, type=type, list_len=list_len)
