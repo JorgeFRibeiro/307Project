@@ -5,8 +5,15 @@ from . import db
 
 topics = Blueprint('topics', __name__)
 
+# Gets a list of all topic names
+def existing_topics_names():
+    topic_list = []
+    for topic_name in Topic.query(Topic.name).distinct():
+        topic_list.append(topic_name)
+    return topic_list
+
 # Gets a list of all topic ids
-def existing_topics():
+def existing_topics_ids():
     topic_list = []
     for topic in Topic.query:
         topic_list.append(topic.id)
@@ -26,7 +33,7 @@ def topic_to_html(topic):
 # Display all currently available topics
 @topics.route('/all_topics_page')
 def all_topics_page():
-    topics = existing_topics()
+    topics = existing_topics_ids()
     topics_html_string = ""
     if len(topics) == 0:
         topics_html_string += "<div class=\"box\">\
