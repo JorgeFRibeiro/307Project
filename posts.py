@@ -47,8 +47,12 @@ def view_temp():
 def post_to_html(post_id):
     #Currently done as <h3> because that is what lines up with in where the 
     #Post html is placed in timeline.html
-    obj = Post.query.get(post_id)
-    user_for_post = User.query.get(obj.user_id)
+    print("post to html")
+    print(post_id)
+    obj = Post.query.filter_by(id=post_id).first()
+    print(obj)
+    print(obj.user_id)
+    user_for_post = User.query.filter_by(id=obj.user_id).first()
     contents = obj.contents
     topics = obj.topic_list.split(',')
     username = user_for_post.name
@@ -102,16 +106,20 @@ def get_interactions_user(user_id):
 
 # TODO function to get all posts' id's of all topics a user is following
 # Return Null if no topics followed
-def get_posts_topics_followed(user_id):
-    user = User.query.filter_by(id=user_id)
-    topics = user.followed_topics
-    post_ids = list()
-
-    for topic_id in topics:
-          topic = Topic.query.filter_by(id=topic_id)
-          for post in topic.post:
-            post_ids.append(post)
-
+def get_posts_topics_followed(user_id):  
+    user = User.query.filter_by(id=user_id).first()
+    # topics is a list of Topic objects
+    topics = user.followed_topics.all()
+    # list containing post ids
+    post_ids = []
+    for topic in topics:
+      post_list = topic.posts
+      for post in post_list:
+        post_ids.append(post.id)
+      # endfor
+    # endfor
+    print("list of posts:")
+    print(post_ids)
     return post_ids
 
 # TODO function to get all posts of a user

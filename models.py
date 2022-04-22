@@ -87,11 +87,11 @@ class Post(UserMixin, db.Model):
     topic_list = db.Column(db.String(1000)) #going to be stored in this format "topic1,topic2,topic3", use split() function
     tagged_topics = db.relationship('Topic', secondary=post_topic, backref='posts_tagged_with')
 
-    def get_tagged_posts(self, topic):
-        list = Post.query.filter
-
 class Topic(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
     posts = db.relationship('Post', secondary=post_topic, backref='tags_mentioned')
     users = db.relationship('User', secondary=user_topic, backref='tags_followed')
+
+    #def get_tagged_posts(self, topic_id):
+        #return Post.query.join(post_topic).join(Topic).filter((post_topic.c.post_id == self.id) & (post_topic.c.topic_id == topic_id)).all()
