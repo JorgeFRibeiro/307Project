@@ -48,6 +48,7 @@ def all_topics_page():
     return render_template('topics_page.html', topics_string=topics_html_string)
 
 # Display all posts under a topic
-@topics.route('/view_topic/<topic>')
-def view_topic():
-    return render_template('index.html')
+@topics.route('/view_topic/<id>')
+def view_topic(id):
+    topic_to_view = Topic.query.get(id)
+    return render_template('topic.html', name = topic_to_view.name, id = id)

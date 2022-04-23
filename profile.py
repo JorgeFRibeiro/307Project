@@ -157,12 +157,6 @@ def unfollow_user(id):
     db.session.commit()
     return redirect(url_for('prof.view_profile', id=id))
 
-# View a topic
-@prof.route('/view_topic/<id>')
-def view_topic(id):
-    topic_to_view = Topic.query.get(id)
-    return render_template('topic.html', name = topic_to_view.name, id = id)
-
 @prof.route('/follow_topic/<id>')
 def follow_topic(id):
     #topic = Topic.query.filter_by(id=id).first()
