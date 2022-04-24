@@ -18,6 +18,17 @@
       <form method="POST" action="/profile">
           <button class="button is-block is-info is-large is-fullwidth" value="Delete Account" name="action"button style="margin:5px;">Delete Account</button>
       </form>
+      {%if current_user.chat_restriction %}
+      <form action="/unrestrict_user/">
+        <button class="button is-block is-info is-large is-fullwidth" value="Unchatrestrict" name="action" button
+          style="margin:5px;">Chat with anyone</button>
+      </form>
+      {% else %}
+      <form action="/restrict_user/">
+        <button class="button is-block is-info is-large is-fullwidth" value="Chatrestrict" name="action" button
+          style="margin:5px;">Chat only mutuals</button>
+      </form>
+      {% endif %}
   </div>
 
   <h1 class="title">Posts</h1>

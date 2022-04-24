@@ -157,6 +157,18 @@ def unfollow_user(id):
     db.session.commit()
     return redirect(url_for('prof.view_profile', id=id))
 
+@prof.route('/unrestrict_user/')
+def unrestrict_user():
+    current_user.chat_restriction = False
+    db.session.commit()
+    return redirect(url_for('prof.profile'))
+
+@prof.route('/restrict_user/')
+def restrict_user():
+    current_user.chat_restriction = True
+    db.session.commit()
+    return redirect(url_for('prof.profile'))
+
 @prof.route('/follow_topic/<id>')
 def follow_topic(id):
     #topic = Topic.query.filter_by(id=id).first()

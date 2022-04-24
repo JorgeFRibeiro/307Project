@@ -31,8 +31,14 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
     bio = db.Column(db.String(1000))
+    chat_restriction = db.Column(db.Boolean)
     # End of warning
     followed_topics = db.relationship('Topic', secondary=user_topic, backref='followed_by', lazy='dynamic')
+
+    def is_chat_restricted(self, user):
+        if self.chat_restriction or user.chat_restriction:
+            return True
+        return False
 
     def is_following_topic(self, topic):
         query_user_topic = User.query.join(user_topic).join(Topic).filter((user_topic.c.user_id == self.id) & (user_topic.c.topic_id == topic)).count()
