@@ -3,6 +3,10 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 import os
 from flask_mail import Mail
+from flask_socketio import SocketIO, join_room
+from faunadb import query as q
+
+
 
 # Database created
 db = SQLAlchemy()
@@ -25,6 +29,8 @@ def create_app():
 
     app.config['SECRET_KEY'] = 'secret-key'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+
+    socketio = SocketIO(app)
 
         # main config
     app.config['SECURITY_PASSWORD_SALT'] = 'my_precious_two'

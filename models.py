@@ -93,3 +93,8 @@ class Topic(UserMixin, db.Model):
     name = db.Column(db.String(20))
     posts = db.relationship('Post', secondary=post_topic, backref='tags_mentioned')
     users = db.relationship('User', secondary=user_topic, backref='tags_followed')
+
+class Message(UserMixin, db.Model):
+     id = db.Column(db.Integer, primary_key=True)
+     username = db.Column(db.String(20))
+     message = db.Column(db.String(500))
