@@ -15,7 +15,10 @@ prof = Blueprint('prof', __name__)
 @login_required
 def profile():
     # TODO: post_to_html parameter is only for testing purposes, REMOVE 
-    return render_template('profile.html', name = current_user.name, bio = current_user.bio, id = current_user.id, post_to_html=post_to_html)
+    topic_list = []
+    for topic_obj in current_user.followed_topics.all():
+        topic_list.append(topic_obj.name)
+    return render_template('profile.html', name = current_user.name, bio = current_user.bio, id = current_user.id, followed_topics = topic_list, post_to_html=post_to_html)
 
 # Edit Profile Page
 @prof.route('/edit_profile')
@@ -155,19 +158,25 @@ def unfollow_user(id):
     db.session.commit()
     return redirect(url_for('prof.view_profile', id=id))
 
-# View a topic
-@prof.route('/view_topic/<id>')
-def view_topic(id):
-    topic_to_view = Topic.query.get(id)
-    return render_template('topic.html', name = topic_to_view.name, id = id)
+@prof.route('/unrestrict_user/')
+def unrestrict_user():
+    current_user.chat_restriction = False
+    db.session.commit()
+    return redirect(url_for('prof.profile'))
+
+@prof.route('/restrict_user/')
+def restrict_user():
+    current_user.chat_restriction = True
+    db.session.commit()
+    return redirect(url_for('prof.profile'))
 
 @prof.route('/follow_topic/<id>')
 def follow_topic(id):
-    topic = Topic.query.filter_by(id=id).first()
-    if current_user.is_following_topic(topic):
-        flash('topic is already followed')
+    #topic = Topic.query.filter_by(id=id).first()
+    if current_user.is_following_topic(id):
+        flash('This topic is already followed!')
         return redirect(url_for('prof.view_topic', id=id))
-    current_user.follow_topic(topic)
+    current_user.follow_topic(id)
     db.session.commit()
     return redirect(url_for('prof.view_topic', id=id))
 

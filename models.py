@@ -31,16 +31,19 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
     bio = db.Column(db.String(1000))
+    chat_restriction = db.Column(db.Boolean)
     # End of warning
-
     followed_topics = db.relationship('Topic', secondary=user_topic, backref='followed_by', lazy='dynamic')
 
     def is_following_topic(self, topic):
-               #return self.followed_topics.filter(user_topic.topic_id == topic).count() > 0 
-           return False
+        query_user_topic = User.query.join(user_topic).join(Topic).filter((user_topic.c.user_id == self.id) & (user_topic.c.topic_id == topic)).count()
+        if query_user_topic > 0:
+            return True
+        return False
 
-    def follow_topic(self, topic):
-        if not self.is_following_topic(topic):
+    def follow_topic(self, id):
+        if not self.is_following_topic(id):
+            topic = Topic.query.filter_by(id=id).first()
             self.followed_topics.append(topic)
 
     def unfollow_topic(self, topic):
@@ -82,11 +85,8 @@ class Post(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     contents = db.Column(db.String(300))
-    topic_list = db.Column(db.String(1000)) #going to be stored in this format "topic1,topic2,topic3", use split() function
+    #topic_list = db.Column(db.String(1000)) #going to be stored in this format "topic1,topic2,topic3", use split() function
     tagged_topics = db.relationship('Topic', secondary=post_topic, backref='posts_tagged_with')
-
-    def get_tagged_posts(self, topic):
-        list = Post.query.filter
 
 class Topic(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -95,6 +95,6 @@ class Topic(UserMixin, db.Model):
     users = db.relationship('User', secondary=user_topic, backref='tags_followed')
 
 class Message(UserMixin, db.Model):
-     id = db.Column(db.Integer, primary_key=True)
-     username = db.Column(db.String(20))
-     message = db.Column(db.String(500))
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20))
+    message = db.Column(db.String(500))
