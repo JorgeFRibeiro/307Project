@@ -23,6 +23,12 @@ post_topic = db.Table('post_topic',
     db.Column('topic_id', db.Integer, db.ForeignKey('topic.id'))
 )
 
+# Blocked users association table
+blocked_users = db.Table('blocked_users',
+    db.Column('blocking_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('blocked_id', db.Integer, db.ForeignKey('user.id'))
+)
+
 class User(UserMixin, db.Model):
 
     # Some of these fields are required
@@ -80,6 +86,25 @@ class User(UserMixin, db.Model):
         own = Post.query.filter_by(user_id=self.id)
         return followed.union(own).order_by(Post.id.desc())
 
+    blocked = db.relationship(
+        'User', secondary=blocked_users,
+        primaryjoin=(blocked_users.c.blocking_id == id),
+        secondaryjoin=(blocked_users.c.blocked_id == id),
+        backref=db.backref('blocked_users', lazy='dynamic'), lazy='dynamic'
+        )
+    
+    # Blocking a user
+    def block(self, user):
+        if not self.is_blocking(user):
+            self.blocked.append(user)
+    # Unblocking a user
+    def unblock(self, user):
+        if self.is_blocking(user):
+            self.blocked.remove(user)
+    # Function that checks if the user is already blocking someone
+    def is_blocking(self, user):
+        return self.blocked.filter(
+        blocked_users.c.blocked_id == user.id).count() > 0        
 
 class Post(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)

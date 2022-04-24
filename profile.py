@@ -110,8 +110,10 @@ def search_user():
     # Using list of possible users, turn all users into html strings with their id's
     for i in range(len(possible_people)):
         id_cur = possible_people[i].id
+        user = possible_people[i]
         print(id_cur)
-        everyone_get_in_here += user_to_html(id_cur)
+        if (not user.is_blocking(current_user)):
+            everyone_get_in_here += user_to_html(id_cur)
 
     # String will be empty if no possible users were found, add the error
     if (len(everyone_get_in_here) == 0):
@@ -221,3 +223,31 @@ def message():
     except:
         return jsonify({'result' : 'error'})
 
+# Blocking an user
+@prof.route('/block_user/<id>')
+def block_user(id):
+    user_to_block = User.query.filter_by(id=id).first()
+    if current_user.is_blocking(user_to_block):
+        flash('Hey buddy I know you dislike this guy, but you\'re already blocking them')
+        return redirect(url_for('prof.view_profile', id=id))
+    if user_to_block == current_user:
+        flash('Hey dude u cant block yourself, seek counseling')
+        return redirect(url_for('prof.view_profile', id=id))
+    current_user.block(user_to_block)
+    flash('You are blocking {}!'.format(user_to_block.name))
+    db.session.commit()
+    return redirect(url_for('prof.view_profile', id=id))
+
+# Unblocking an user
+@prof.route('/unblock_user/<id>')
+def unblock_user(id):
+    # id of user to be unfollowed should be supplied by whatever is calling this
+    #print(id)
+    user = User.query.filter_by(id=id).first()
+    if user is None:
+        return redirect(url_for('index', id=id))
+    if user == current_user:
+        return redirect(url_for('user', id=id))
+    current_user.unblock(user)
+    db.session.commit()
+    return redirect(url_for('prof.view_profile', id=id))
