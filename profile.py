@@ -32,9 +32,16 @@ def edit_profile():
 def profile_delete():
     # Deleting a user account and all of their associated data
     if request.form.get('action') == "Delete Account":
-        obj = User.query.filter_by(id=current_user.id).one()
-        db.session.delete(obj)
+        usr_obj = User.query.filter_by(id=current_user.id).one()
+
+        posts_for_user = Post.query.filter_by(user_id=usr_obj.id)
+        for p in posts_for_user:
+            print("type", type(p))
+            db.session.delete(p)
+        
+        db.session.delete(usr_obj)
         db.session.commit()
+
         return redirect(url_for('auth.logout'))
 
     # TODO: Other buttons if they exist
