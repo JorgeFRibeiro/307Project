@@ -52,7 +52,7 @@
     </form>
     {% endif %}
     <!-- Change action for it to be a new page where the users may chat    -->
-    {%if current_user.is_chat_restricted(user) %}
+    {%if user.chat_restriction %}
       {%if current_user.is_following(user) %}
         {%if user.is_following(current_user) %}
         <form action="/chat_with/{{ id }}">
