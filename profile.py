@@ -1,8 +1,9 @@
 import re
-from flask import Blueprint, redirect, render_template, request, url_for, flash
-from flask_login import login_required, current_user
+from flask import Blueprint, redirect, render_template, request, url_for, flash, jsonify
+from flask_login import login_required, current_user, UserMixin
 from numpy import delete
-from .models import User, Post, Topic
+import pusher
+from .models import User, Post, Topic, Message
 from .posts import post_to_html
 from . import db
 from werkzeug.security import generate_password_hash
@@ -179,6 +180,44 @@ def follow_topic(id):
     db.session.commit()
     return redirect(url_for('prof.view_topic', id=id))
 
+
+# Chat server setup
+pusher_client = pusher.Pusher(
+app_id='1385712',
+key='4eefb1b81ae21d331cbf',
+secret='441266c2faec85226f05',
+cluster='us2',
+ssl=True
+)
+
 @prof.route('/chat_with/<id>')
 def chat_with(id):
-    return render_template('starting_template.html', id=id)
+
+    user = User.query.filter_by(id=id).first()
+    new_name = user.name
+
+    # Can query only of the 2 id's that are chatting
+    messages = Message.query.filter_by(username=current_user.name)
+    messages2 = Message.query.filter_by(username=new_name)
+    messages_total = messages.union(messages2)
+    # messages_total = Message.query.all()
+    #print(messages_total)
+    #messages2 = Message.query.filter_by(username=new_name)
+
+    return render_template('starting_template.html', messages=messages_total, curr_user=current_user, id=id)
+
+@prof.route('/message', methods=['POST'])
+def message():
+    try:
+        username = current_user.name
+        message = request.form.get('message')
+        db.create_all()
+        new_message = Message(username=username, message=message)
+        db.session.add(new_message)
+        db.session.commit()
+
+        pusher_client.trigger('chat-channel', 'new-message', {'username': username, 'message': message})
+        return jsonify({'result' : 'success'})
+    except:
+        return jsonify({'result' : 'error'})
+

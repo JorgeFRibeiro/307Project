@@ -94,5 +94,7 @@ class Topic(UserMixin, db.Model):
     posts = db.relationship('Post', secondary=post_topic, backref='tags_mentioned')
     users = db.relationship('User', secondary=user_topic, backref='tags_followed')
 
-    #def get_tagged_posts(self, topic_id):
-        #return Post.query.join(post_topic).join(Topic).filter((post_topic.c.post_id == self.id) & (post_topic.c.topic_id == topic_id)).all()
+class Message(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20))
+    message = db.Column(db.String(500))
