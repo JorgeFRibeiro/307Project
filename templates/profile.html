@@ -8,8 +8,8 @@
       <!-- TODO: Add PFP display functionality -->
 
       <h3>Name: {{ name }}</h3>
-
       <h3>Bio: {{ bio }}</h3>
+      <h3>Following Topics: {{ followed_topics }}</h3>
 
       <form method="GET" action="/edit_profile">
           <button class="button is-block is-info is-large is-fullwidth" value="Edit Profile" name="action"button style="margin:5px;">Edit Profile</button>
@@ -18,6 +18,17 @@
       <form method="POST" action="/profile">
           <button class="button is-block is-info is-large is-fullwidth" value="Delete Account" name="action"button style="margin:5px;">Delete Account</button>
       </form>
+      {%if current_user.chat_restriction %}
+      <form action="/unrestrict_user/">
+        <button class="button is-block is-info is-large is-fullwidth" value="Unchatrestrict" name="action" button
+          style="margin:5px;">Chat with anyone</button>
+      </form>
+      {% else %}
+      <form action="/restrict_user/">
+        <button class="button is-block is-info is-large is-fullwidth" value="Chatrestrict" name="action" button
+          style="margin:5px;">Chat only mutuals</button>
+      </form>
+      {% endif %}
   </div>
 
   <h1 class="title">Posts</h1>
@@ -74,7 +85,7 @@
 
 <div class="column is-half">
   <h1 class="title">Posts</h1>
-    {{ post_to_html(4)|safe }}
+    {{ post_to_html(1)|safe }}
 </div>
 
 </div>

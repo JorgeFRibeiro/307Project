@@ -78,4 +78,7 @@ def create_app():
     from .posts import posts as posts_blueprint
     app.register_blueprint(posts_blueprint)
 
+    from .topics import topics as topics_blueprint
+    app.register_blueprint(topics_blueprint)
+
     return app
