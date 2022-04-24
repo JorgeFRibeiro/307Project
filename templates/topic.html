@@ -17,7 +17,11 @@
         style="margin:5px;">Follow This Topic!</button>
     </form>
     {% else %}
-    <h1>Nothing to do here...</h1>
+    <h1>No longer interested in {{ name }}?</h1>
+    <form action="/unfollow_topic/{{ id }}">
+      <button class="button is-block is-info is-large is-fullwidth" value="Follow Topic" name="action" button
+      style="margin:5px;">Unfollow This Topic!</button>
+    </form>
     {% endif %}
   </div>
   {% endif %}

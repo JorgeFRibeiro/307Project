@@ -170,6 +170,12 @@ def restrict_user():
     db.session.commit()
     return redirect(url_for('prof.profile'))
 
+# Display all posts under a topic
+@prof.route('/view_topic/<id>')
+def view_topic(id):
+    topic_to_view = Topic.query.get(id)
+    return render_template('topic.html', name = topic_to_view.name, id = id)
+
 @prof.route('/follow_topic/<id>')
 def follow_topic(id):
     #topic = Topic.query.filter_by(id=id).first()
@@ -177,6 +183,16 @@ def follow_topic(id):
         flash('This topic is already followed!')
         return redirect(url_for('prof.view_topic', id=id))
     current_user.follow_topic(id)
+    db.session.commit()
+    return redirect(url_for('prof.view_topic', id=id))
+
+@prof.route('/unfollow_topic/<id>')
+def unfollow_topic(id):
+    #topic = Topic.query.filter_by(id=id).first()
+    if not current_user.is_following_topic(id):
+        flash("You don't follow this topic!")
+        return redirect(url_for('prof.view_topic', id=id))
+    current_user.unfollow_topic(id)
     db.session.commit()
     return redirect(url_for('prof.view_topic', id=id))
 

@@ -46,8 +46,9 @@ class User(UserMixin, db.Model):
             topic = Topic.query.filter_by(id=id).first()
             self.followed_topics.append(topic)
 
-    def unfollow_topic(self, topic):
-        if self.is_following_topic(topic):
+    def unfollow_topic(self, id):
+        if self.is_following_topic(id):
+            topic = Topic.query.filter_by(id=id).first()
             self.followed_topics.remove(topic)
 
     # Included many to many follower relationship
