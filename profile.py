@@ -179,12 +179,6 @@ def restrict_user():
     db.session.commit()
     return redirect(url_for('prof.profile'))
 
-# Display all posts under a topic
-@prof.route('/view_topic/<id>')
-def view_topic(id):
-    topic_to_view = Topic.query.get(id)
-    return render_template('topic.html', name = topic_to_view.name, id = id)
-
 @prof.route('/follow_topic/<id>')
 def follow_topic(id):
     #topic = Topic.query.filter_by(id=id).first()
@@ -193,7 +187,7 @@ def follow_topic(id):
         return redirect(url_for('prof.view_topic', id=id))
     current_user.follow_topic(id)
     db.session.commit()
-    return redirect(url_for('prof.view_topic', id=id))
+    return redirect(url_for('topics.view_topic', id=id, post_num=0))
 
 @prof.route('/unfollow_topic/<id>')
 def unfollow_topic(id):
@@ -203,7 +197,7 @@ def unfollow_topic(id):
         return redirect(url_for('prof.view_topic', id=id))
     current_user.unfollow_topic(id)
     db.session.commit()
-    return redirect(url_for('prof.view_topic', id=id))
+    return redirect(url_for('topics.view_topic', id=id, post_num=0))
 
 
 # Chat server setup

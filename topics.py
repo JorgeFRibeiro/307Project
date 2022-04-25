@@ -2,6 +2,7 @@ from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask_login import login_required, current_user
 from .models import User, Post, Topic
 from . import db
+from .posts import post_to_html
 
 topics = Blueprint('topics', __name__)
 
@@ -24,7 +25,7 @@ def topic_to_html(name, id):
     # html conversion
     html_string =  "<div class=\"box\">\
                         <h3>" + str(name) + "</h3>\
-                        <form action=\"/view_topic/" + str(id) + "\">\
+                        <form action=\"/view_topic/" + str(id) + "/" + str("0") + "\">\
                             <button>View this Topic</button>\
                         </form>\
                     </div>"
@@ -48,7 +49,16 @@ def all_topics_page():
     return render_template('topics_page.html', topics_string=topics_html_string)
 
 # Display all posts under a topic
-@topics.route('/view_topic/<id>')
-def view_topic(id):
+@topics.route('/view_topic/<id>/<post_num>')
+def view_topic(id, post_num):
     topic_to_view = Topic.query.get(id)
-    return render_template('topic.html', name = topic_to_view.name, id = id)
+    post_list = []
+    for post in topic_to_view.posts:
+        post_list.append(post.id)
+    if len(post_list) == 0:
+        flash('User has no content of that type')
+        return redirect(url_for('prof.profile'))
+    post_num = int(post_num)
+    list_len = len(post_list)
+    post_html = post_to_html(post_list[post_num])
+    return render_template('topic.html', name = topic_to_view.name, id = id, post_num=post_num, post_html=post_html, list_len=list_len)
