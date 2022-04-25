@@ -1,4 +1,6 @@
 import re
+from time import sleep
+from certifi import contents
 from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask_login import login_required, current_user
 from .models import User, Post, Topic
@@ -9,21 +11,33 @@ posts = Blueprint('posts', __name__)
 
 NULL = 0
 
-# Post related functions
+# redirect to post create page
 @posts.route('/create_post', methods=['POST'])
+@login_required
 def create_post():
-    print("post creation", request.form)
     if request.form.get('action') == "Create Post":
-        text = "test post"
-        contents = "test"
-        topic_list = "topic1,topic2,topic3"
+      return render_template('create_post.html')
+
+# post form connection
+@posts.route('/post_created', methods=['POST'])
+@login_required
+def post_creation_handler():
+    if request.form.get('action') == "Post Created": 
+        topic = request.form.get('topic')
+
+        #TODO add topic to relational database
+        #TODO if topic doesn't exist, add it to topic database
+
+        contents = request.form.get('contents')
+        anonymous = True if request.form.get('anonymous') == 'on' else False 
+  
         new_post = Post(user_id=current_user.id,
-                        contents=contents, topic_list=topic_list)
+                        contents=contents, anonymous=anonymous)
+        
         db.session.add(new_post)
         db.session.commit()
-    # TODO: Display some sort of post creation message
-    return redirect(url_for('prof.profile'))
-    
+        return redirect(url_for('prof.profile'))
+
 @posts.route('/delete_post', methods=['POST'])
 @login_required
 def delete_post():

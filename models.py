@@ -111,7 +111,7 @@ class Post(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     contents = db.Column(db.String(300))
-    #topic_list = db.Column(db.String(1000)) #going to be stored in this format "topic1,topic2,topic3", use split() function
+    anonymous = db.Column(db.Boolean)
     tagged_topics = db.relationship('Topic', secondary=post_topic, backref='posts_tagged_with')
 
 class Topic(UserMixin, db.Model):
