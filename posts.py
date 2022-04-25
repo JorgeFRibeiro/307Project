@@ -47,12 +47,16 @@ def view_temp():
 def post_to_html(post_id):
     #Currently done as <h3> because that is what lines up with in where the 
     #Post html is placed in timeline.html
-    print("post to html")
-    print(post_id)
     obj = Post.query.filter_by(id=post_id).first()
-    print(obj)
-    print(obj.user_id)
     user_for_post = User.query.filter_by(id=obj.user_id).first()
+    tagged_topics = obj.tagged_topics
+    tagged_topics_str = "Tags: "
+    count = 0
+    for topic in tagged_topics:
+      count += 1    
+      tagged_topics_str += topic.name
+      if count < (len(tagged_topics)):
+        tagged_topics_str += ", "
     contents = obj.contents
     # topics = obj.topic_list.split(',') // no longer needed, switched to post_topic rdb
     username = user_for_post.name
@@ -68,6 +72,7 @@ def post_to_html(post_id):
         <div class=\"content\">\
           <p>\
             <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
+            <br>" + tagged_topics_str + "</p>\
             <br>" + str(contents) + "</p>\
         </div>\
         <nav class=\"level is-mobile\">\
@@ -118,8 +123,6 @@ def get_posts_topics_followed(user_id):
         post_ids.append(post.id)
       # endfor
     # endfor
-    print("list of posts:")
-    print(post_ids)
     return post_ids
 
 # TODO function to get all posts of a user
@@ -186,8 +189,6 @@ def disp_timeline(id, post_num, type):
     # TODO add another elif for getting interactions
     post_num = int(post_num)
     list_len = len(post_list)
-    print("LIST LEN:")
-    print(list_len)
     post_html = post_to_html(post_list[post_num])
 
     return render_template('timeline.html', id=id, post_num=post_num, post_html=post_html, type=type, list_len=list_len)
