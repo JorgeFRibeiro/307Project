@@ -37,10 +37,12 @@ def post_creation_handler():
           topic_obj = Topic.query.filter_by(name=topic).first()
           # see if topic exists in db, if not create it
           if (not topic_obj):
+            print("HIT!")    
             topic_found = Topic(name=topic)
-            db.session.add(topic_found)
-          
-          new_post.tagged_topics.append(topic_found)
+            db.session.add(topic_found) 
+            new_post.tagged_topics.append(topic_found)
+          else:
+            new_post.tagged_topics.append(topic_obj)    
           
         db.session.add(new_post)
         db.session.commit()
