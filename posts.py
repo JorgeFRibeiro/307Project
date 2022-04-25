@@ -1,8 +1,11 @@
 import re
 from time import sleep
+from wsgiref.util import request_uri
 from certifi import contents
 from flask import Blueprint, redirect, render_template, request, url_for, flash
+from flask import session as cur_session
 from flask_login import login_required, current_user
+from requests import session
 from .models import User, Post, Topic
 from . import db
 from werkzeug.security import generate_password_hash
@@ -61,6 +64,7 @@ def view_temp():
 def post_to_html(post_id):
     #Currently done as <h3> because that is what lines up with in where the 
     #Post html is placed in timeline.html
+    cur_session['url'] = request.url
     obj = Post.query.filter_by(id=post_id).first()
     user_for_post = User.query.filter_by(id=obj.user_id).first()
     tagged_topics = obj.tagged_topics
@@ -254,7 +258,10 @@ def like_post(id):
         return redirect(url_for('prof.view_profile', id=id))
     current_user.like(post)
     db.session.commit()
-    return redirect(url_for('prof.view_profile', id=id))
+    if 'url' in cur_session:
+      return redirect(cur_session['url'])
+    else:
+      return redirect(url_for('prof.view_profile', id=id))
 
 @posts.route('/unlike_post/<id>')
 def unlike_post(id):
@@ -263,7 +270,10 @@ def unlike_post(id):
         return redirect(url_for('index', id=id))
     current_user.unlike(post)
     db.session.commit()
-    return redirect(url_for('prof.view_profile', id=id))
+    if 'url' in cur_session:
+      return redirect(cur_session['url'])
+    else:
+      return redirect(url_for('prof.view_profile', id=id))
 
 def get_urls(contents):
     url_list = re.findall(r'(https?://[^\s]+)', contents)
