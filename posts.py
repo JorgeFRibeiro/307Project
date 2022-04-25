@@ -6,12 +6,11 @@ from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask import session as cur_session
 from flask_login import login_required, current_user
 from requests import session
-from .models import User, Post, Topic
+from .models import User, Post, Topic, Comment
 from . import db
 from werkzeug.security import generate_password_hash
 
 posts = Blueprint('posts', __name__)
-
 NULL = 0
 like_counter = 0
 # redirect to post create page
@@ -78,47 +77,19 @@ def post_to_html(post_id):
     contents = obj.contents
     # topics = obj.topic_list.split(',') // no longer needed, switched to post_topic rdb
     username = user_for_post.name
-    if not current_user.is_liking(obj):
-      html_string = "<div class=\"box\"> \
-      <article class=\"media\">\
-        <figure class=\"media-left\">\
-          <p class=\"image is-64x64\">\
-            <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
-          </p>\
-        </figure>\
-        <div class=\"media-content\">\
-          <div class=\"content\">\
-            <p>\
-              <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
-              <br>" + tagged_topics_str + "</p>\
-              <br>" + str(contents) + "</p>\
-          </div>\
-          <nav class=\"level is-mobile\">\
-            <div class=\"level-left\">\
-              <button class=\"button is-ghost\">edit</button>\
-            </div>\
-            <div class=\"level-right\">\
-              <form action=\"/see_full_post/"+str(post_id)+"\">\
-                <button>post details</button>\
-              </form>\
-            </div>\
-              <div class=\"level-right\">\
+    #if not current_user.is_liking(obj):
+
+    like_button = "<div class=\"level-right\">\
               <form action=\"/like_post/"+str(post_id)+"\">\
                 <button>Like</button>\
-              </form>\
-            <div class=\"content\">\
-            <p>\
-              Likes: " + str(like_counter) + "</p>\
-          </div>\
-          </nav>\
-        </div>\
-        <div class=\"media-right\">\
-          <button class=\"delete\"></button>\
-        </div>\
-      </article>\
-      </div>"
-    else:
-        html_string = "<div class=\"box\"> \
+              </form>"
+
+    dislike_button = "<div class=\"level-right\">\
+               <form action=\"/unlike_post/"+str(post_id)+"\">\
+                 <button>Dislike</button>\
+               </form>"
+
+    html_string = "<div class=\"box\"> \
       <article class=\"media\">\
         <figure class=\"media-left\">\
           <p class=\"image is-64x64\">\
@@ -140,12 +111,14 @@ def post_to_html(post_id):
               <form action=\"/see_full_post/"+str(post_id)+"\">\
                 <button>post details</button>\
               </form>\
-            </div>\
-              <div class=\"level-right\">\
-              <form action=\"/unlike_post/"+str(post_id)+"\">\
-                <button>Dislike</button>\
-              </form>\
-            <div class=\"content\">\
+            </div>"
+
+    if not current_user.is_liking(obj):
+      html_string += like_button
+    else:
+      html_string += dislike_button
+
+    next_part = "<div class=\"content\">\
             <p>\
               Likes: " + str(like_counter) + "</p>\
           </div>\
@@ -154,9 +127,34 @@ def post_to_html(post_id):
         <div class=\"media-right\">\
           <button class=\"delete\"></button>\
         </div>\
-      </article>\
+      </article>"
+
+    html_string += next_part
+
+    second_section = "<form class=\"input-group\" method='POST' action=\"/create-comment/"+str(obj.id)+"\" >\
+          <input type=\"text\" id=\"text\" name=\"text\" class =\"form-control\ placeholder=\"Comment something\" />\
+          <button type=\"submit\" class=\"btn btn-primary\">Comment</button>  \
+            <br>"
+    html_string += second_section
+    for comment in obj.comments:
+      print(comment.contents)
+      comments = comment.contents
+      if current_user.id == comment.author:
+        poster = current_user.name
+      else:
+        author = User.query.filter_by(id=comment.author).first()
+        poster = author.name
+      third_section = "<p><strong>" + str(poster) + ": </strong>" + str(comments) + ""
+      if current_user.id == comment.author or current_user == obj.user_id:
+        fourth_section = "&nbsp; &nbsp; <a href=\"/delete-comment/"+str(comment.id)+"\" style=\"color:red\">Delete</a></p>"
+      else:
+        fourth_section = ''
+      html_string += third_section
+      html_string += fourth_section
+     
+    end_section = "</form> </form> \
       </div>"
- 
+    html_string += end_section
     return html_string
 
 # TODO function to get all comments a user made
@@ -286,6 +284,35 @@ def unlike_post(id):
       return redirect(cur_session['url'])
     else:
       return redirect(url_for('prof.view_profile', id=id))
+
+@posts.route("/create-comment/<post_id>", methods=['POST'])
+@login_required
+def create_comment(post_id):
+  contents = request.form.get('text')
+
+  if not contents:
+    flash('Comment cannot be empty!', category='error')
+  else:
+    post = Post.query.filter_by(id=post_id)
+    if post:
+      comment = Comment(contents=contents, author=current_user.id, post_id=post_id)
+      db.session.add(comment)
+      db.session.commit()
+    
+  return redirect(cur_session['url'])
+
+@posts.route("/delete-comment/<comment_id>")
+@login_required
+def delete_comment(comment_id):
+  comment = Comment.query.filter_by(id=comment_id).first()
+
+  if not comment:
+    flash('Comment does not exist')
+  else:
+    db.session.delete(comment)
+    db.session.commit()
+
+  return redirect(cur_session['url'])
 
 def get_urls(contents):
     url_list = re.findall(r'(https?://[^\s]+)', contents)

@@ -35,6 +35,12 @@ liked_post = db.Table('liked_post',
     db.Column('liked_id', db.Integer, db.ForeignKey('post.id'))
 )
 
+# Post comments
+# post_comment = db.Table('post_comment',
+#     db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+#     db.Column('post_id', db.Integer, db.ForeignKey('post.id'))
+# )
+
 class User(UserMixin, db.Model):
 
     # Some of these fields are required
@@ -46,6 +52,7 @@ class User(UserMixin, db.Model):
     chat_restriction = db.Column(db.Boolean)
     # End of warning
     followed_topics = db.relationship('Topic', secondary=user_topic, backref='followed_by', lazy='dynamic')
+    comments = db.relationship('Comment',  backref='user', passive_deletes=True)
 
     def is_following_topic(self, topic):
         query_user_topic = User.query.join(user_topic).join(Topic).filter((user_topic.c.user_id == self.id) & (user_topic.c.topic_id == topic)).count()
@@ -139,6 +146,7 @@ class Post(UserMixin, db.Model):
     contents = db.Column(db.String(300))
     anonymous = db.Column(db.Boolean)
     tagged_topics = db.relationship('Topic', secondary=post_topic, backref='posts_tagged_with')
+    comments = db.relationship('Comment', backref='post', passive_deletes=True)
 
 class Topic(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -150,3 +158,11 @@ class Message(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20))
     message = db.Column(db.String(500))
+
+class Comment(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    contents = db.Column(db.String(200))
+    # author = db.relationship('User', secondary=post_comment, backref='user')
+    # post_id = db.relationship('Post', secondary=post_comment, backref='post')
+    author = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id', ondelete="CASCADE"), nullable=False)
