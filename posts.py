@@ -74,37 +74,76 @@ def post_to_html(post_id):
     contents = obj.contents
     # topics = obj.topic_list.split(',') // no longer needed, switched to post_topic rdb
     username = user_for_post.name
-    
-    html_string = "<div class=\"box\"> \
-    <article class=\"media\">\
-      <figure class=\"media-left\">\
-        <p class=\"image is-64x64\">\
-          <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
-        </p>\
-      </figure>\
-      <div class=\"media-content\">\
-        <div class=\"content\">\
-          <p>\
-            <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
-            <br>" + tagged_topics_str + "</p>\
-            <br>" + str(contents) + "</p>\
+    if not current_user.is_liking(obj):
+      html_string = "<div class=\"box\"> \
+      <article class=\"media\">\
+        <figure class=\"media-left\">\
+          <p class=\"image is-64x64\">\
+            <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
+          </p>\
+        </figure>\
+        <div class=\"media-content\">\
+          <div class=\"content\">\
+            <p>\
+              <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
+              <br>" + tagged_topics_str + "</p>\
+              <br>" + str(contents) + "</p>\
+          </div>\
+          <nav class=\"level is-mobile\">\
+            <div class=\"level-left\">\
+              <button class=\"button is-ghost\">edit</button>\
+            </div>\
+            <div class=\"level-right\">\
+              <form action=\"/see_full_post/"+str(post_id)+"\">\
+                <button>post details</button>\
+              </form>\
+            </div>\
+              <div class=\"level-right\">\
+              <form action=\"/like_post/"+str(post_id)+"\">\
+                <button>Like</button>\
+              </form>\
+          </nav>\
         </div>\
-        <nav class=\"level is-mobile\">\
-          <div class=\"level-left\">\
-            <button class=\"button is-ghost\">edit</button>\
+        <div class=\"media-right\">\
+          <button class=\"delete\"></button>\
+        </div>\
+      </article>\
+      </div>"
+    else:
+        html_string = "<div class=\"box\"> \
+      <article class=\"media\">\
+        <figure class=\"media-left\">\
+          <p class=\"image is-64x64\">\
+            <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
+          </p>\
+        </figure>\
+        <div class=\"media-content\">\
+          <div class=\"content\">\
+            <p>\
+              <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
+              <br>" + tagged_topics_str + "</p>\
+              <br>" + str(contents) + "</p>\
           </div>\
-          <div class=\"level-right\">\
-            <form action=\"/see_full_post/"+str(post_id)+"\">\
-              <button>post details</button>\
-            </form>\
-          </div>\
-        </nav>\
-      </div>\
-      <div class=\"media-right\">\
-        <button class=\"delete\"></button>\
-      </div>\
-    </article>\
- </div>"
+          <nav class=\"level is-mobile\">\
+            <div class=\"level-left\">\
+              <button class=\"button is-ghost\">edit</button>\
+            </div>\
+            <div class=\"level-right\">\
+              <form action=\"/see_full_post/"+str(post_id)+"\">\
+                <button>post details</button>\
+              </form>\
+            </div>\
+              <div class=\"level-right\">\
+              <form action=\"/unlike_post/"+str(post_id)+"\">\
+                <button>Dislike</button>\
+              </form>\
+          </nav>\
+        </div>\
+        <div class=\"media-right\">\
+          <button class=\"delete\"></button>\
+        </div>\
+      </article>\
+      </div>"
  
     return html_string
 
@@ -207,6 +246,24 @@ def disp_timeline(id, post_num, type):
 
     return render_template('timeline.html', id=id, post_num=post_num, post_html=post_html, type=type, list_len=list_len)
 
+@posts.route('/like_post/<id>')
+def like_post(id):
+    post = Post.query.filter_by(id=id).first()
+    if current_user.is_liking(post):
+        flash('Hey buddy I know you like this guy, but you\'re already liking them')
+        return redirect(url_for('prof.view_profile', id=id))
+    current_user.like(post)
+    db.session.commit()
+    return redirect(url_for('prof.view_profile', id=id))
+
+@posts.route('/unlike_post/<id>')
+def unlike_post(id):
+    post = Post.query.filter_by(id=id).first()
+    if post is None:
+        return redirect(url_for('index', id=id))
+    current_user.unlike(post)
+    db.session.commit()
+    return redirect(url_for('prof.view_profile', id=id))
 
 def get_urls(contents):
     url_list = re.findall(r'(https?://[^\s]+)', contents)

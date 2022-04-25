@@ -29,6 +29,12 @@ blocked_users = db.Table('blocked_users',
     db.Column('blocked_id', db.Integer, db.ForeignKey('user.id'))
 )
 
+# Likes in posts (reaction)
+liked_post = db.Table('liked_post',
+    db.Column('liking_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('liked_id', db.Integer, db.ForeignKey('post.id'))
+)
+
 class User(UserMixin, db.Model):
 
     # Some of these fields are required
@@ -106,6 +112,26 @@ class User(UserMixin, db.Model):
     def is_blocking(self, user):
         return self.blocked.filter(
         blocked_users.c.blocked_id == user.id).count() > 0        
+
+    #db.relationship('Topic', secondary=user_topic, backref='followed_by', lazy='dynamic')
+
+    liked = db.relationship(
+        'Post', secondary=liked_post,
+        backref=db.backref('liked_post', lazy='dynamic'), lazy='dynamic'
+    )
+
+    # Liking a post
+    def like(self, post):
+        if not self.is_liking(post):
+            self.liked.append(post)
+    # Unliking a post
+    def unlike(self, post):
+        if self.is_liking(post):
+            self.liked.remove(post)
+    # Function that checks if the user has already liked the post
+    def is_liking(self, post):
+        return self.liked.filter(
+        liked_post.c.liked_id == post.id).count() > 0  
 
 class Post(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
