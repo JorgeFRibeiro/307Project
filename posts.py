@@ -26,24 +26,16 @@ def create_post():
 def post_creation_handler():
     if request.form.get('action') == "Post Created": 
         topic = request.form.get('topic')
+
+        #TODO add topic to relational database
+        #TODO if topic doesn't exist, add it to topic database
+
         contents = request.form.get('contents')
         anonymous = True if request.form.get('anonymous') == 'on' else False 
-
-        if (anonymous):
-          new_post = Post(user_id= -1, contents=contents, anonymous=anonymous, likes=0) 
-        else:
-          new_post = Post(user_id=current_user.id, contents=contents, anonymous=anonymous, likes=0)
+  
+        new_post = Post(user_id=current_user.id,
+                        contents=contents, anonymous=anonymous)
         
-        if (topic):
-          topic_obj = Topic.query.filter_by(name=topic).first()
-          # see if topic exists in db, if not create it
-          if (not topic_obj):    
-            topic_found = Topic(name=topic)
-            db.session.add(topic_found) 
-            new_post.tagged_topics.append(topic_found)
-          else:
-            new_post.tagged_topics.append(topic_obj)    
-          
         db.session.add(new_post)
         db.session.commit()
         return redirect(url_for('prof.profile'))
@@ -83,104 +75,21 @@ def post_to_html(post_id):
       if count < (len(tagged_topics)):
         tagged_topics_str += ", "
     contents = obj.contents
-    likes = obj.likes
     # topics = obj.topic_list.split(',') // no longer needed, switched to post_topic rdb
     username = user_for_post.name
+    #if not current_user.is_liking(obj):
 
-    html_string_unliked_saved = ""
-    html_string_unliked_unsaved = ""
-    html_string_liked_saved = ""
-    html_string_liked_unsaved = ""
+    like_button = "<div class=\"level-right\">\
+              <form action=\"/like_post/"+str(post_id)+"\">\
+                <button>Like</button>\
+              </form>"
 
-    html_string_unliked_unsaved = "<div class=\"box\"> \
-        <article class=\"media\">\
-          <figure class=\"media-left\">\
-            <p class=\"image is-64x64\">\
-              <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
-            </p>\
-          </figure>\
-          <div class=\"media-content\">\
-            <div class=\"content\">\
-              <p>\
-                <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
-                <br>" + tagged_topics_str + "</p>\
-                <br>" + str(contents) + "</p>\
-            </div>\
-            <nav class=\"level is-mobile\">\
-              <div class=\"level-left\">\
-                <button class=\"button is-ghost\">edit</button>\
-              </div>\
-              <div class=\"level-right\">\
-                <form action=\"/see_full_post/"+str(post_id)+"\">\
-                  <button>post details</button>\
-                </form>\
-              </div>\
-              <div class=\"level-right\">\
-                <form action=\"/save_post/"+str(post_id)+"\">\
-                  <button>Save</button>\
-                </form>\
-              </div>\
-              <div class=\"level-right\">\
-                <form action=\"/like_post/"+str(post_id)+"\">\
-                  <button>Like</button>\
-                </form>\
-              <div class=\"content\">\
-              <p>\
-                Likes: " + str(likes) + "</p>\
-            </div>\
-            </nav>\
-          </div>\
-          <div class=\"media-right\">\
-            <button class=\"delete\"></button>\
-          </div>\
-        </article>\
-        </div>"
-    
-    html_string_unliked_saved = "<div class=\"box\"> \
-        <article class=\"media\">\
-          <figure class=\"media-left\">\
-            <p class=\"image is-64x64\">\
-              <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
-            </p>\
-          </figure>\
-          <div class=\"media-content\">\
-            <div class=\"content\">\
-              <p>\
-                <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
-                <br>" + tagged_topics_str + "</p>\
-                <br>" + str(contents) + "</p>\
-            </div>\
-            <nav class=\"level is-mobile\">\
-              <div class=\"level-left\">\
-                <button class=\"button is-ghost\">edit</button>\
-              </div>\
-              <div class=\"level-right\">\
-                <form action=\"/see_full_post/"+str(post_id)+"\">\
-                  <button>post details</button>\
-                </form>\
-              </div>\
-              <div class=\"level-right\">\
-                <form action=\"/unsave_post/"+str(post_id)+"\">\
-                  <button>Unsave</button>\
-                </form>\
-              </div>\
-              <div class=\"level-right\">\
-                <form action=\"/like_post/"+str(post_id)+"\">\
-                  <button>Like</button>\
-                </form>\
-              <div class=\"content\">\
-              <p>\
-                Likes: " + str(likes) + "</p>\
-            </div>\
-            </nav>\
-          </div>\
-          <div class=\"media-right\">\
-            <button class=\"delete\"></button>\
-          </div>\
-        </article>\
-        </div>"
+    dislike_button = "<div class=\"level-right\">\
+               <form action=\"/unlike_post/"+str(post_id)+"\">\
+                 <button>Dislike</button>\
+               </form>"
 
-    html_string_liked_saved = "<div class=\"box\"> \
+    html_string = "<div class=\"box\"> \
       <article class=\"media\">\
         <figure class=\"media-left\">\
           <p class=\"image is-64x64\">\
@@ -202,19 +111,16 @@ def post_to_html(post_id):
               <form action=\"/see_full_post/"+str(post_id)+"\">\
                 <button>post details</button>\
               </form>\
-            </div>\
-            <div class=\"level-right\">\
-              <form action=\"/unsave_post/"+str(post_id)+"\">\
-                <button>Unsave</button>\
-              </form>\
-            </div>\
-            <div class=\"level-right\">\
-              <form action=\"/unlike_post/"+str(post_id)+"\">\
-                <button>Dislike</button>\
-              </form>\
-            <div class=\"content\">\
+            </div>"
+
+    if not current_user.is_liking(obj):
+      html_string += like_button
+    else:
+      html_string += dislike_button
+
+    next_part = "<div class=\"content\">\
             <p>\
-              Likes: " + str(likes) + "</p>\
+              Likes: " + str(like_counter) + "</p>\
           </div>\
           </nav>\
         </div>\
@@ -249,61 +155,6 @@ def post_to_html(post_id):
     end_section = "</form> </form> \
       </div>"
     html_string += end_section
-
-    html_string_liked_unsaved = "<div class=\"box\"> \
-      <article class=\"media\">\
-        <figure class=\"media-left\">\
-          <p class=\"image is-64x64\">\
-            <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
-          </p>\
-        </figure>\
-        <div class=\"media-content\">\
-          <div class=\"content\">\
-            <p>\
-              <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
-              <br>" + tagged_topics_str + "</p>\
-              <br>" + str(contents) + "</p>\
-          </div>\
-          <nav class=\"level is-mobile\">\
-            <div class=\"level-left\">\
-              <button class=\"button is-ghost\">edit</button>\
-            </div>\
-            <div class=\"level-right\">\
-              <form action=\"/see_full_post/"+str(post_id)+"\">\
-                <button>post details</button>\
-              </form>\
-            </div>\
-            <div class=\"level-right\">\
-              <form action=\"/save_post/"+str(post_id)+"\">\
-                <button>Save</button>\
-              </form>\
-            </div>\
-            <div class=\"level-right\">\
-              <form action=\"/unlike_post/"+str(post_id)+"\">\
-                <button>Dislike</button>\
-              </form>\
-            <div class=\"content\">\
-            <p>\
-              Likes: " + str(likes) + "</p>\
-          </div>\
-          </nav>\
-        </div>\
-        <div class=\"media-right\">\
-          <button class=\"delete\"></button>\
-        </div>\
-      </article>\
-      </div>"
-
-    if current_user.is_liking(obj): # user does not like post
-      if current_user.has_saved(obj):
-        html_string = html_string_liked_saved
-      else:
-        html_string = html_string_liked_unsaved
-    else:
-      if current_user.has_saved(obj):
-        html_string = html_string_unliked_saved
-      else:
-        html_string = html_string_unliked_unsaved
     return html_string
 
 # TODO function to get all comments a user made
@@ -360,21 +211,6 @@ def get_posts_users_followed(user_id):
         result.append(post)
     return result
 
-# Display timeline of saved posts
-@posts.route('/saved_posts/<id>/<post_num>')
-def view_saved_posts(id, post_num):
-    obj = User.query.get(id)    
-    post_list = []
-    for post in obj.saved_posts:
-        post_list.append(post.id)
-    if len(post_list) == 0:
-        flash('No Saved Posts exist!')
-        return redirect(url_for('prof.profile'))
-    post_num = int(post_num)
-    list_len = len(post_list)
-    post_html = post_to_html(post_list[post_num])
-    return render_template('saved_posts.html', id = id, post_num=post_num, post_html=post_html, list_len=list_len)
-
 # Display the timeline of a user
 @posts.route('/disp_userline/<id>/<post_num>/<type>')
 def disp_userline(id, post_num, type):
@@ -422,11 +258,12 @@ def disp_timeline(id, post_num, type):
 
 @posts.route('/like_post/<id>')
 def like_post(id):
+    global like_counter 
+    like_counter += 1
     post = Post.query.filter_by(id=id).first()
     if current_user.is_liking(post):
         flash('Hey buddy I know you like this guy, but you\'re already liking them')
         return redirect(url_for('prof.view_profile', id=id))
-    post.likes += 1
     current_user.like(post)
     db.session.commit()
     if 'url' in cur_session:
@@ -436,10 +273,11 @@ def like_post(id):
 
 @posts.route('/unlike_post/<id>')
 def unlike_post(id):
+    global like_counter 
+    like_counter -= 1
     post = Post.query.filter_by(id=id).first()
     if post is None:
         return redirect(url_for('index', id=id))
-    post.likes -= 1
     current_user.unlike(post)
     db.session.commit()
     if 'url' in cur_session:
@@ -475,34 +313,6 @@ def delete_comment(comment_id):
     db.session.commit()
 
   return redirect(cur_session['url'])
-# Added below for save post functionality
-
-@posts.route('/save_post/<id>')
-def save_post(id):
-    post = Post.query.filter_by(id=id).first()
-    if current_user.has_saved(post):
-        flash('Hey buddy I know you like this post, but you\'ve already saved this!')
-        return redirect(url_for('prof.view_profile', id=id))
-    current_user.save(post)
-    db.session.commit()
-    if 'url' in cur_session:
-      return redirect(cur_session['url'])
-    else:
-      return redirect(url_for('prof.view_profile', id=id))
-
-@posts.route('/unsave_post/<id>')
-def unsave_post(id):
-    post = Post.query.filter_by(id=id).first()
-    if post is None:
-        return redirect(url_for('index', id=id))
-    current_user.unsave(post)
-    db.session.commit()
-    if 'url' in cur_session:
-      return redirect(cur_session['url'])
-    else:
-      return redirect(url_for('prof.view_profile', id=id))
-
-# Added above for save post functionality
 
 def get_urls(contents):
     url_list = re.findall(r'(https?://[^\s]+)', contents)

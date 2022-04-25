@@ -42,12 +42,6 @@
       <button class="button is-block is-info is-large is-fullwidth" value="Delete Post" name="action" button
         style="margin:5px;">Delete Post</button>
     </form>
-
-    <form action="/saved_posts/{{ id }}/0">
-      <button class="button is-block is-info is-large is-fullwidth" value="Saved Posts" name="action" button
-        style="margin:5px;">Saved Posts</button>
-    </form>
-
   </div>
 
   <h1 class="title">Timeline</h1>
@@ -91,7 +85,7 @@
 
 <div class="column is-half">
   <h1 class="title">Posts</h1>
-    {{ post_to_html(2)|safe }}
+    {{ post_to_html(1)|safe }}
 </div>
 
 </div>

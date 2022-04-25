@@ -111,6 +111,7 @@ def search_user():
     # Grab what username was searched for, put list of possible users into possible_people
     username = request.args.get('search')
     possible_people = User.query.filter_by(name=username).all()
+    print(possible_people)
     everyone_get_in_here = ""
 
     # Using list of possible users, turn all users into html strings with their id's
