@@ -6,11 +6,12 @@ from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask import session as cur_session
 from flask_login import login_required, current_user
 from requests import session
-from .models import User, Post, Topic, Comment
+from .models import User, Post, Topic
 from . import db
 from werkzeug.security import generate_password_hash
 
 posts = Blueprint('posts', __name__)
+
 NULL = 0
 like_counter = 0
 # redirect to post create page
@@ -221,34 +222,8 @@ def post_to_html(post_id):
         <div class=\"media-right\">\
           <button class=\"delete\"></button>\
         </div>\
-      </article>"
-
-    html_string += next_part
-
-    second_section = "<form class=\"input-group\" method='POST' action=\"/create-comment/"+str(obj.id)+"\" >\
-          <input type=\"text\" id=\"text\" name=\"text\" class =\"form-control\ placeholder=\"Comment something\" />\
-          <button type=\"submit\" class=\"btn btn-primary\">Comment</button>  \
-            <br>"
-    html_string += second_section
-    for comment in obj.comments:
-      print(comment.contents)
-      comments = comment.contents
-      if current_user.id == comment.author:
-        poster = current_user.name
-      else:
-        author = User.query.filter_by(id=comment.author).first()
-        poster = author.name
-      third_section = "<p><strong>" + str(poster) + ": </strong>" + str(comments) + ""
-      if current_user.id == comment.author or current_user == obj.user_id:
-        fourth_section = "&nbsp; &nbsp; <a href=\"/delete-comment/"+str(comment.id)+"\" style=\"color:red\">Delete</a></p>"
-      else:
-        fourth_section = ''
-      html_string += third_section
-      html_string += fourth_section
-     
-    end_section = "</form> </form> \
+      </article>\
       </div>"
-    html_string += end_section
 
     html_string_liked_unsaved = "<div class=\"box\"> \
       <article class=\"media\">\
@@ -447,34 +422,6 @@ def unlike_post(id):
     else:
       return redirect(url_for('prof.view_profile', id=id))
 
-@posts.route("/create-comment/<post_id>", methods=['POST'])
-@login_required
-def create_comment(post_id):
-  contents = request.form.get('text')
-
-  if not contents:
-    flash('Comment cannot be empty!', category='error')
-  else:
-    post = Post.query.filter_by(id=post_id)
-    if post:
-      comment = Comment(contents=contents, author=current_user.id, post_id=post_id)
-      db.session.add(comment)
-      db.session.commit()
-    
-  return redirect(cur_session['url'])
-
-@posts.route("/delete-comment/<comment_id>")
-@login_required
-def delete_comment(comment_id):
-  comment = Comment.query.filter_by(id=comment_id).first()
-
-  if not comment:
-    flash('Comment does not exist')
-  else:
-    db.session.delete(comment)
-    db.session.commit()
-
-  return redirect(cur_session['url'])
 # Added below for save post functionality
 
 @posts.route('/save_post/<id>')

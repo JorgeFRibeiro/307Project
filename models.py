@@ -52,7 +52,6 @@ class User(UserMixin, db.Model):
     chat_restriction = db.Column(db.Boolean)
     # End of warning
     followed_topics = db.relationship('Topic', secondary=user_topic, backref='followed_by', lazy='dynamic')
-    comments = db.relationship('Comment',  backref='user', passive_deletes=True)
     saved_posts = db.relationship('Post', secondary=saved_post, backref='saved_by', lazy='dynamic')
 
     def is_following_topic(self, topic):
@@ -169,7 +168,6 @@ class Post(UserMixin, db.Model):
     anonymous = db.Column(db.Boolean)
     likes = db.Column(db.Integer)
     tagged_topics = db.relationship('Topic', secondary=post_topic, backref='posts_tagged_with')
-    comments = db.relationship('Comment', backref='post', passive_deletes=True)
 
 class Topic(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -181,11 +179,3 @@ class Message(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20))
     message = db.Column(db.String(500))
-
-class Comment(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    contents = db.Column(db.String(200))
-    # author = db.relationship('User', secondary=post_comment, backref='user')
-    # post_id = db.relationship('Post', secondary=post_comment, backref='post')
-    author = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id', ondelete="CASCADE"), nullable=False)
