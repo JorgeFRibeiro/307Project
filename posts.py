@@ -27,16 +27,21 @@ def create_post():
 def post_creation_handler():
     if request.form.get('action') == "Post Created": 
         topic = request.form.get('topic')
-
-        #TODO add topic to relational database
-        #TODO if topic doesn't exist, add it to topic database
-
         contents = request.form.get('contents')
         anonymous = True if request.form.get('anonymous') == 'on' else False 
   
         new_post = Post(user_id=current_user.id,
                         contents=contents, anonymous=anonymous, likes=0)
         
+        if (topic):
+          topic_obj = Topic.query.filter_by(name=topic).first()
+          # see if topic exists in db, if not create it
+          if (not topic_obj):
+            topic_found = Topic(name=topic)
+            db.session.add(topic_found)
+          
+          new_post.tagged_topics.append(topic_found)
+          
         db.session.add(new_post)
         db.session.commit()
         return redirect(url_for('prof.profile'))
