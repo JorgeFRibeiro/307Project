@@ -138,6 +138,7 @@ class Post(UserMixin, db.Model):
     user_id = db.Column(db.Integer)
     contents = db.Column(db.String(300))
     anonymous = db.Column(db.Boolean)
+    likes = db.Column(db.Integer)
     tagged_topics = db.relationship('Topic', secondary=post_topic, backref='posts_tagged_with')
 
 class Topic(UserMixin, db.Model):

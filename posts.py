@@ -35,7 +35,7 @@ def post_creation_handler():
         anonymous = True if request.form.get('anonymous') == 'on' else False 
   
         new_post = Post(user_id=current_user.id,
-                        contents=contents, anonymous=anonymous)
+                        contents=contents, anonymous=anonymous, likes=0)
         
         db.session.add(new_post)
         db.session.commit()
@@ -76,6 +76,7 @@ def post_to_html(post_id):
       if count < (len(tagged_topics)):
         tagged_topics_str += ", "
     contents = obj.contents
+    likes = obj.likes
     # topics = obj.topic_list.split(',') // no longer needed, switched to post_topic rdb
     username = user_for_post.name
     if not current_user.is_liking(obj):
@@ -108,7 +109,7 @@ def post_to_html(post_id):
               </form>\
             <div class=\"content\">\
             <p>\
-              Likes: " + str(like_counter) + "</p>\
+              Likes: " + str(likes) + "</p>\
           </div>\
           </nav>\
         </div>\
@@ -147,7 +148,7 @@ def post_to_html(post_id):
               </form>\
             <div class=\"content\">\
             <p>\
-              Likes: " + str(like_counter) + "</p>\
+              Likes: " + str(likes) + "</p>\
           </div>\
           </nav>\
         </div>\
@@ -260,12 +261,11 @@ def disp_timeline(id, post_num, type):
 
 @posts.route('/like_post/<id>')
 def like_post(id):
-    global like_counter 
-    like_counter += 1
     post = Post.query.filter_by(id=id).first()
     if current_user.is_liking(post):
         flash('Hey buddy I know you like this guy, but you\'re already liking them')
         return redirect(url_for('prof.view_profile', id=id))
+    post.likes += 1
     current_user.like(post)
     db.session.commit()
     if 'url' in cur_session:
@@ -275,11 +275,10 @@ def like_post(id):
 
 @posts.route('/unlike_post/<id>')
 def unlike_post(id):
-    global like_counter 
-    like_counter -= 1
     post = Post.query.filter_by(id=id).first()
     if post is None:
         return redirect(url_for('index', id=id))
+    post.likes -= 1
     current_user.unlike(post)
     db.session.commit()
     if 'url' in cur_session:
