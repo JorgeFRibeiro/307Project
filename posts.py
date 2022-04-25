@@ -13,7 +13,7 @@ from werkzeug.security import generate_password_hash
 posts = Blueprint('posts', __name__)
 
 NULL = 0
-
+like_counter = 0
 # redirect to post create page
 @posts.route('/create_post', methods=['POST'])
 @login_required
@@ -106,6 +106,10 @@ def post_to_html(post_id):
               <form action=\"/like_post/"+str(post_id)+"\">\
                 <button>Like</button>\
               </form>\
+            <div class=\"content\">\
+            <p>\
+              Likes: " + str(like_counter) + "</p>\
+          </div>\
           </nav>\
         </div>\
         <div class=\"media-right\">\
@@ -141,6 +145,10 @@ def post_to_html(post_id):
               <form action=\"/unlike_post/"+str(post_id)+"\">\
                 <button>Dislike</button>\
               </form>\
+            <div class=\"content\">\
+            <p>\
+              Likes: " + str(like_counter) + "</p>\
+          </div>\
           </nav>\
         </div>\
         <div class=\"media-right\">\
@@ -252,6 +260,8 @@ def disp_timeline(id, post_num, type):
 
 @posts.route('/like_post/<id>')
 def like_post(id):
+    global like_counter 
+    like_counter += 1
     post = Post.query.filter_by(id=id).first()
     if current_user.is_liking(post):
         flash('Hey buddy I know you like this guy, but you\'re already liking them')
@@ -265,6 +275,8 @@ def like_post(id):
 
 @posts.route('/unlike_post/<id>')
 def unlike_post(id):
+    global like_counter 
+    like_counter -= 1
     post = Post.query.filter_by(id=id).first()
     if post is None:
         return redirect(url_for('index', id=id))
