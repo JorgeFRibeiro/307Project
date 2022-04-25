@@ -35,6 +35,12 @@ liked_post = db.Table('liked_post',
     db.Column('liked_id', db.Integer, db.ForeignKey('post.id'))
 )
 
+# User to post relational db to store saved_posts
+saved_post = db.Table('saved_post',
+    db.Column('saving_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('saved_id', db.Integer, db.ForeignKey('post.id'))
+)
+
 class User(UserMixin, db.Model):
 
     # Some of these fields are required
@@ -131,7 +137,28 @@ class User(UserMixin, db.Model):
     # Function that checks if the user has already liked the post
     def is_liking(self, post):
         return self.liked.filter(
-        liked_post.c.liked_id == post.id).count() > 0  
+        liked_post.c.liked_id == post.id).count() > 0 
+
+    saved = db.relationship(
+        'Post', secondary=saved_post,
+        backref=db.backref('saved_post', lazy='dynamic'), lazy='dynamic'
+    )
+
+    # Check if user saved post
+    def has_saved(self, post):
+        return self.saved.filter(
+            saved_post.c.saved_id == post.id).count() > 0
+
+    # Save a post
+    def save(self, post):
+        if not self.has_saved(post):
+            self.saved.append(post)
+    
+    # Unsave a post
+    def unsave(self, post):
+        if self.has_saved(post):
+            self.saved.remove(post)
+    
 
 class Post(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
