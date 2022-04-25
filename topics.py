@@ -56,9 +56,22 @@ def view_topic(id, post_num):
     for post in topic_to_view.posts:
         post_list.append(post.id)
     if len(post_list) == 0:
-        flash('User has no content of that type')
+        flash('No Content for that Topic Exists')
         return redirect(url_for('prof.profile'))
     post_num = int(post_num)
     list_len = len(post_list)
     post_html = post_to_html(post_list[post_num])
     return render_template('topic.html', name = topic_to_view.name, id = id, post_num=post_num, post_html=post_html, list_len=list_len)
+
+# Update the database with a new topic
+def create_new_topic(topic_name):
+    new_topic = Topic(name=topic_name)
+    db.session.add(new_topic)
+    db.session.commit()
+
+# From all-topics page, new topic creation
+@topics.route('/new_topic', methods=['GET'])
+def new_topic():
+    new_topic_name = request.args.get('tname')
+    create_new_topic(new_topic_name)
+    return redirect(url_for('topics.all_topics_page'))

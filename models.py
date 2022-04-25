@@ -35,11 +35,11 @@ liked_post = db.Table('liked_post',
     db.Column('liked_id', db.Integer, db.ForeignKey('post.id'))
 )
 
-# Post comments
-# post_comment = db.Table('post_comment',
-#     db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-#     db.Column('post_id', db.Integer, db.ForeignKey('post.id'))
-# )
+# User to post relational db to store saved_posts
+saved_post = db.Table('saved_post',
+    db.Column('saving_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('saved_id', db.Integer, db.ForeignKey('post.id'))
+)
 
 class User(UserMixin, db.Model):
 
@@ -53,6 +53,7 @@ class User(UserMixin, db.Model):
     # End of warning
     followed_topics = db.relationship('Topic', secondary=user_topic, backref='followed_by', lazy='dynamic')
     comments = db.relationship('Comment',  backref='user', passive_deletes=True)
+    saved_posts = db.relationship('Post', secondary=saved_post, backref='saved_by', lazy='dynamic')
 
     def is_following_topic(self, topic):
         query_user_topic = User.query.join(user_topic).join(Topic).filter((user_topic.c.user_id == self.id) & (user_topic.c.topic_id == topic)).count()
@@ -138,13 +139,35 @@ class User(UserMixin, db.Model):
     # Function that checks if the user has already liked the post
     def is_liking(self, post):
         return self.liked.filter(
-        liked_post.c.liked_id == post.id).count() > 0  
+        liked_post.c.liked_id == post.id).count() > 0 
+
+    saved = db.relationship(
+        'Post', secondary=saved_post,
+        backref=db.backref('saved_post', lazy='dynamic'), lazy='dynamic'
+    )
+
+    # Check if user saved post
+    def has_saved(self, post):
+        return self.saved.filter(
+            saved_post.c.saved_id == post.id).count() > 0
+
+    # Save a post
+    def save(self, post):
+        if not self.has_saved(post):
+            self.saved.append(post)
+    
+    # Unsave a post
+    def unsave(self, post):
+        if self.has_saved(post):
+            self.saved.remove(post)
+    
 
 class Post(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     contents = db.Column(db.String(300))
     anonymous = db.Column(db.Boolean)
+    likes = db.Column(db.Integer)
     tagged_topics = db.relationship('Topic', secondary=post_topic, backref='posts_tagged_with')
     comments = db.relationship('Comment', backref='post', passive_deletes=True)
 
