@@ -327,6 +327,21 @@ def get_posts_users_followed(user_id):
         result.append(post)
     return result
 
+# Display timeline of saved posts
+@posts.route('/saved_posts/<id>/<post_num>')
+def view_saved_posts(id, post_num):
+    obj = User.query.get(id)    
+    post_list = []
+    for post in obj.saved_posts:
+        post_list.append(post.id)
+    if len(post_list) == 0:
+        flash('No Saved Posts exist!')
+        return redirect(url_for('prof.profile'))
+    post_num = int(post_num)
+    list_len = len(post_list)
+    post_html = post_to_html(post_list[post_num])
+    return render_template('saved_posts.html', id = id, post_num=post_num, post_html=post_html, list_len=list_len)
+
 # Display the timeline of a user
 @posts.route('/disp_userline/<id>/<post_num>/<type>')
 def disp_userline(id, post_num, type):
