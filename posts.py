@@ -205,7 +205,7 @@ def post_to_html(post_id):
               <div class=\"content\">\
               <p>\
                 Likes: " + str(likes) + "</p>\
-            </div>\
+              </div>\
             </nav>"
 
     comment_bar = "<form class=\"input-group\" method='POST' action=\"/create-comment/"+str(obj.id)+"\" >\

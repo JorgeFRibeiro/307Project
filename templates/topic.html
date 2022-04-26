@@ -20,17 +20,13 @@
     <div class="box">
   
       {% if post_num < list_len - 1 %}
-      <form action="/view_topic/{{ id }}/{{ post_num + 1 }}">
-        <button class="button is-block is-info is-large is-fullwidth" value="Next Post" name="action" button
+        <button class="button is-block is-info is-large is-fullwidth" onclick="location.href='/view_topic/{{ id }}/{{ post_num + 1 }}';" type="button"value="Next Post" name="action" button
           style="margin:5px;">Next Post</button>
-      </form>
       {% endif %}
   
       {% if post_num > 0 %}
-      <form action="/view_topic/{{ id }}/{{ post_num - 1 }}">
-        <button class="button is-block is-info is-large is-fullwidth" value="Previous Post" name="action" button
+        <button class="button is-block is-info is-large is-fullwidth" onclick="location.href='/view_topic/{{ id }}/{{ post_num - 1 }}';" type="button"value="Previous Post" name="action" button
           style="margin:5px;">Previous Post</button>
-      </form>
       {% endif %}
     </div>
     {% endif %}
