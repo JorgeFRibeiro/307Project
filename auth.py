@@ -50,7 +50,14 @@ def login_post():
 
 
 # TODO: Continue as Guest functionality for the login page
-
+@auth.route('/guest_login')
+def login_guest():
+    global confirmed
+    # Ensure that all the fields are filled in
+    user = User.query.filter_by(id=-1).first()
+    login_user(user, remember=False)
+    # Good2go login and send user to profile
+    return redirect(url_for('prof.profile'))
 
 # Signup page
 @auth.route('/signup')
