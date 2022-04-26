@@ -42,9 +42,9 @@
         style="margin:5px;">Create Post</button>
     </form>
 
-    <form method="POST" action="/delete_post">
-      <button class="button is-block is-info is-large is-fullwidth" value="Delete Post" name="action" button
-        style="margin:5px;">Delete Post</button>
+    <form action="/manage_posts/{{ id }}/0">
+      <button class="button is-block is-info is-large is-fullwidth" value="Manage Posts" name="action" button
+        style="margin:5px;">Manage Created Posts</button>
     </form>
 
     <form action="/saved_posts/{{ id }}/0">
