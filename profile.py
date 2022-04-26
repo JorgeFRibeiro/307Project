@@ -267,3 +267,55 @@ def unblock_user(id):
     current_user.unblock(user)
     db.session.commit()
     return redirect(url_for('prof.view_profile', id=id))
+
+# Added below for all following page
+def followed_topic_to_html(name, id):
+    html_string =  "<div class=\"box\">\
+                            <h3>" + str(name) + "</h3>\
+                            <form action=\"/unfollow_topic/" + str(id) + "\">\
+                                <button>Unfollow!</button>\
+                            </form>\
+                        </div>"
+    return html_string
+
+def followed_user_to_html(name, id):
+    html_string =  "<div class=\"box\">\
+                            <h3>" + str(name) + "</h3>\
+                            <form action=\"/unfollow_user/" + str(id) + "\">\
+                                <button>Unfollow!</button>\
+                            </form>\
+                        </div>"
+    return html_string
+
+@prof.route('/all_following')
+def all_following_page():
+    # config topics
+    topics = current_user.followed_topics.all()
+    topics_html_string = ""
+    if len(topics) == 0:
+        topics_html_string += "<div class=\"box\">\
+                                    <h3>You don't folllow any topics!</h3>\
+                                </div>"
+    else:
+        for topic in topics:
+            name = topic.name
+            id = topic.id
+            topics_html_string += followed_topic_to_html(name, id)
+    
+    # config users
+    users = current_user.followed.all()
+    users_html_string = ""
+    if len(users) == 0:
+        users_html_string += "<div class=\"box\">\
+                                    <h3>You don't folllow any users!</h3>\
+                                </div>"
+    else:
+        for user in users:
+            name = user.name
+            id = user.id
+            users_html_string += followed_user_to_html(name, id)
+    
+    # return
+    return render_template('all_following.html', topics_string=topics_html_string, users_string=users_html_string)
+            
+# Added above for all following page
