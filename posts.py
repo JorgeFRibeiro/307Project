@@ -116,13 +116,35 @@ def post_del_to_html(post_id):
                   <button>Delete Post</button>\
                 </form>\
               </div>\
-            </nav>\
-          </div>\
+            </nav>"
+    comment_bar = "<form class=\"input-group\" method='POST' action=\"/create-comment/"+str(obj.id)+"\" >\
+          <input type=\"text\" id=\"text\" name=\"text\" class =\"form-control\ placeholder=\"Comment something\" />\
+          <button type=\"submit\" class=\"btn btn-primary\">Comment</button>  \
+            <br>"
+    html_string += comment_bar
+    for comment in obj.comments:
+      comments = comment.contents
+      if current_user.id == comment.author:
+        poster = current_user.name
+      else:
+        author = User.query.filter_by(id=comment.author).first()
+        poster = author.name
+      third_section = "<p><strong>" + str(poster) + ": </strong>" + str(comments) + ""
+      if current_user.id == comment.author or current_user == obj.user_id:
+        fourth_section = "&nbsp; &nbsp; <a href=\"/delete-comment/"+str(comment.id)+"\" style=\"color:red\">Delete</a></p>"
+      else:
+        fourth_section = ''
+      html_string += third_section
+      html_string += fourth_section
+    
+    
+    end = "</div>\
           <div class=\"media-right\">\
             <button class=\"delete\"></button>\
           </div>\
         </article>\
         </div>"
+    html_string += end
 
     return html_string
 
@@ -192,7 +214,6 @@ def post_to_html(post_id):
             <br>"
     html_string_unliked_unsaved += comment_bar
     for comment in obj.comments:
-      print(comment.contents)
       comments = comment.contents
       if current_user.id == comment.author:
         poster = current_user.name
@@ -253,7 +274,6 @@ def post_to_html(post_id):
 
     html_string_unliked_saved += comment_bar
     for comment in obj.comments:
-      print(comment.contents)
       comments = comment.contents
       if current_user.id == comment.author:
         poster = current_user.name
@@ -307,7 +327,6 @@ def post_to_html(post_id):
           </nav>"
     html_string_liked_saved += comment_bar
     for comment in obj.comments:
-      print(comment.contents)
       comments = comment.contents
       if current_user.id == comment.author:
         poster = current_user.name
@@ -361,7 +380,6 @@ def post_to_html(post_id):
           </nav>"
     html_string_liked_unsaved += comment_bar
     for comment in obj.comments:
-      print(comment.contents)
       comments = comment.contents
       if current_user.id == comment.author:
         poster = current_user.name
