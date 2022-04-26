@@ -57,7 +57,7 @@ def view_topic(id, post_num):
         post_list.append(post.id)
     if len(post_list) == 0:
         flash('No Content for that Topic Exists')
-        return redirect(url_for('prof.profile'))
+        return redirect(url_for('topics.all_topics_page'))
     post_num = int(post_num)
     list_len = len(post_list)
     post_html = post_to_html(post_list[post_num])

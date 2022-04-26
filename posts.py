@@ -292,6 +292,12 @@ def get_interactions_user(user_id):
     # Get things like comments, saving a post, reactions
     # and append them to each other
 
+    # Get post id's of liked posts
+    liked_posts_ids = []
+    user = User.query.filter_by(id=user_id).first()
+    for liked_post in user.liked:
+      liked_posts_ids.append(liked_post.id)
+
     # Then convert to html (special way for this specific grabber)
     # ^^^^ is to be done though
     return NULL
