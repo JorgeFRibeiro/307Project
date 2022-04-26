@@ -1,5 +1,6 @@
 import re
 from flask import Blueprint, redirect, render_template, request, url_for, flash, jsonify
+from flask import session as cur_session
 from flask_login import login_required, current_user, UserMixin
 from numpy import delete
 import pusher
@@ -151,7 +152,10 @@ def follow_user(id):
     current_user.follow(user)
     flash('You are following {}!'.format(user.name))
     db.session.commit()
-    return redirect(url_for('prof.view_profile', id=id))
+    if 'url' in cur_session:
+            return redirect(cur_session['url'])
+    else:
+        return redirect(url_for('prof.view_profile', id=id))
 
 # Unfollowing another dude
 @prof.route('/unfollow_user/<id>')
@@ -165,7 +169,10 @@ def unfollow_user(id):
         return redirect(url_for('user', id=id))
     current_user.unfollow(user)
     db.session.commit()
-    return redirect(url_for('prof.view_profile', id=id))
+    if 'url' in cur_session:
+        return redirect(cur_session['url'])
+    else:
+        return redirect(url_for('prof.view_profile', id=id))
 
 @prof.route('/unrestrict_user/')
 def unrestrict_user():
@@ -187,7 +194,10 @@ def follow_topic(id):
         return redirect(url_for('prof.view_topic', id=id))
     current_user.follow_topic(id)
     db.session.commit()
-    return redirect(url_for('topics.view_topic', id=id, post_num=0))
+    if 'url' in cur_session:
+        return redirect(cur_session['url'])
+    else:
+        return redirect(url_for('topics.view_topic', id=id, post_num=0))
 
 @prof.route('/unfollow_topic/<id>')
 def unfollow_topic(id):
@@ -197,7 +207,10 @@ def unfollow_topic(id):
         return redirect(url_for('prof.view_topic', id=id))
     current_user.unfollow_topic(id)
     db.session.commit()
-    return redirect(url_for('topics.view_topic', id=id, post_num=0))
+    if 'url' in cur_session:
+            return redirect(cur_session['url'])
+    else:
+        return redirect(url_for('topics.view_topic', id=id, post_num=0))
 
 
 # Chat server setup
@@ -268,3 +281,55 @@ def unblock_user(id):
     current_user.unblock(user)
     db.session.commit()
     return redirect(url_for('prof.view_profile', id=id))
+
+# Added below for all following page
+def followed_topic_to_html(name, id):
+    html_string =  "<div class=\"box\">\
+                            <h3>" + str(name) + "</h3>\
+                            <form action=\"/unfollow_topic/" + str(id) + "\">\
+                                <button>Unfollow!</button>\
+                            </form>\
+                        </div>"
+    return html_string
+
+def followed_user_to_html(name, id):
+    html_string =  "<div class=\"box\">\
+                            <h3>" + str(name) + "</h3>\
+                            <form action=\"/unfollow_user/" + str(id) + "\">\
+                                <button>Unfollow!</button>\
+                            </form>\
+                        </div>"
+    return html_string
+
+@prof.route('/all_following')
+def all_following_page():
+    # config topics
+    topics = current_user.followed_topics.all()
+    topics_html_string = ""
+    if len(topics) == 0:
+        topics_html_string += "<div class=\"box\">\
+                                    <h3>You don't folllow any topics!</h3>\
+                                </div>"
+    else:
+        for topic in topics:
+            name = topic.name
+            id = topic.id
+            topics_html_string += followed_topic_to_html(name, id)
+    
+    # config users
+    users = current_user.followed.all()
+    users_html_string = ""
+    if len(users) == 0:
+        users_html_string += "<div class=\"box\">\
+                                    <h3>You don't folllow any users!</h3>\
+                                </div>"
+    else:
+        for user in users:
+            name = user.name
+            id = user.id
+            users_html_string += followed_user_to_html(name, id)
+    
+    # return
+    return render_template('all_following.html', topics_string=topics_html_string, users_string=users_html_string)
+            
+# Added above for all following page
