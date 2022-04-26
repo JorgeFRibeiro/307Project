@@ -1,5 +1,6 @@
 import re
 from flask import Blueprint, redirect, render_template, request, url_for, flash, jsonify
+from flask import session as cur_session
 from flask_login import login_required, current_user, UserMixin
 from numpy import delete
 import pusher
@@ -150,7 +151,10 @@ def follow_user(id):
     current_user.follow(user)
     flash('You are following {}!'.format(user.name))
     db.session.commit()
-    return redirect(url_for('prof.view_profile', id=id))
+    if 'url' in cur_session:
+            return redirect(cur_session['url'])
+    else:
+        return redirect(url_for('prof.view_profile', id=id))
 
 # Unfollowing another dude
 @prof.route('/unfollow_user/<id>')
@@ -164,7 +168,10 @@ def unfollow_user(id):
         return redirect(url_for('user', id=id))
     current_user.unfollow(user)
     db.session.commit()
-    return redirect(url_for('prof.view_profile', id=id))
+    if 'url' in cur_session:
+        return redirect(cur_session['url'])
+    else:
+        return redirect(url_for('prof.view_profile', id=id))
 
 @prof.route('/unrestrict_user/')
 def unrestrict_user():
@@ -186,7 +193,10 @@ def follow_topic(id):
         return redirect(url_for('prof.view_topic', id=id))
     current_user.follow_topic(id)
     db.session.commit()
-    return redirect(url_for('topics.view_topic', id=id, post_num=0))
+    if 'url' in cur_session:
+        return redirect(cur_session['url'])
+    else:
+        return redirect(url_for('topics.view_topic', id=id, post_num=0))
 
 @prof.route('/unfollow_topic/<id>')
 def unfollow_topic(id):
@@ -196,7 +206,10 @@ def unfollow_topic(id):
         return redirect(url_for('prof.view_topic', id=id))
     current_user.unfollow_topic(id)
     db.session.commit()
-    return redirect(url_for('topics.view_topic', id=id, post_num=0))
+    if 'url' in cur_session:
+            return redirect(cur_session['url'])
+    else:
+        return redirect(url_for('topics.view_topic', id=id, post_num=0))
 
 
 # Chat server setup
