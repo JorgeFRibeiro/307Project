@@ -424,11 +424,14 @@ def get_interactions_user(user_id):
     interaction_post_ids = []
     user = User.query.filter_by(id=user_id).first()
     for liked_post in user.liked:
-      interaction_post_ids.append(liked_post.id)
+      if liked_post.user_id not in user.blocked.all():
+        interaction_post_ids.append(liked_post.id)
 
     for comment in user.comments:
       if comment.post_id not in interaction_post_ids:
-        interaction_post_ids.append(comment.post_id)
+        post_of_comment = Post.query.filter_by(id=comment.post_id).first()
+        if post_of_comment.user_id not in user.blocked.all():
+          interaction_post_ids.append(comment.post_id)
 
     print("Post ids >>> " + str(interaction_post_ids))
 
