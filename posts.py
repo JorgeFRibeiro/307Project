@@ -421,14 +421,20 @@ def get_interactions_user(user_id):
     # and append them to each other
 
     # Get post id's of liked posts
-    liked_posts_ids = []
+    interaction_post_ids = []
     user = User.query.filter_by(id=user_id).first()
     for liked_post in user.liked:
-      liked_posts_ids.append(liked_post.id)
+      interaction_post_ids.append(liked_post.id)
+
+    for comment in user.comments:
+      if comment.post_id not in interaction_post_ids:
+        interaction_post_ids.append(comment.post_id)
+
+    print("Post ids >>> " + str(interaction_post_ids))
 
     # Then convert to html (special way for this specific grabber)
     # ^^^^ is to be done though
-    return NULL
+    return interaction_post_ids
 
 # TODO function to get all posts' id's of all topics a user is following
 # Return Null if no topics followed
