@@ -110,9 +110,6 @@ def post_del_to_html(post_id):
                 <br>" + str(contents) + "</p>\
             </div>\
             <nav class=\"level is-mobile\">\
-              <div class=\"level-left\">\
-                <button class=\"button is-ghost\">edit</button>\
-              </div>\
               <div class=\"level-right\">\
                 <form method=\"POST\" action=\"/delete_post/"+str(post_id)+"\">\
                   <button>Delete Post</button>\
@@ -168,9 +165,6 @@ def post_to_html(post_id):
                 <br>" + str(contents) + "</p>\
             </div>\
             <nav class=\"level is-mobile\">\
-              <div class=\"level-left\">\
-                <button class=\"button is-ghost\">edit</button>\
-              </div>\
               <div class=\"level-right\">\
                 <form action=\"/see_full_post/"+str(post_id)+"\">\
                   <button>post details</button>\
@@ -212,9 +206,6 @@ def post_to_html(post_id):
                 <br>" + str(contents) + "</p>\
             </div>\
             <nav class=\"level is-mobile\">\
-              <div class=\"level-left\">\
-                <button class=\"button is-ghost\">edit</button>\
-              </div>\
               <div class=\"level-right\">\
                 <form action=\"/see_full_post/"+str(post_id)+"\">\
                   <button>post details</button>\
@@ -256,9 +247,6 @@ def post_to_html(post_id):
               <br>" + str(contents) + "</p>\
           </div>\
           <nav class=\"level is-mobile\">\
-            <div class=\"level-left\">\
-              <button class=\"button is-ghost\">edit</button>\
-            </div>\
             <div class=\"level-right\">\
               <form action=\"/see_full_post/"+str(post_id)+"\">\
                 <button>post details</button>\
@@ -300,9 +288,6 @@ def post_to_html(post_id):
               <br>" + str(contents) + "</p>\
           </div>\
           <nav class=\"level is-mobile\">\
-            <div class=\"level-left\">\
-              <button class=\"button is-ghost\">edit</button>\
-            </div>\
             <div class=\"level-right\">\
               <form action=\"/see_full_post/"+str(post_id)+"\">\
                 <button>post details</button>\
