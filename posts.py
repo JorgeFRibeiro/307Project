@@ -269,7 +269,7 @@ def post_to_html(post_id):
       html_string_unliked_saved += fourth_section
     
     
-    html_string_unliked_unsaved += end
+    html_string_unliked_saved += end
 
     html_string_liked_saved = "<div class=\"box\"> \
       <article class=\"media\">\
