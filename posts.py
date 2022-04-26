@@ -364,9 +364,15 @@ def get_posts_topics_followed(user_id):
     topics = user.followed_topics.all()
     # list containing post ids
     post_ids = []
+    blocked_user_ids = []
+    blocked_users = user.blocked.all()
+    for blocked_user in blocked_users:
+      blocked_user_ids.append(blocked_user.id)
     for topic in topics:
       post_list = topic.posts
       for post in post_list:
+        if (post.user_id in blocked_user_ids):
+          continue
         post_ids.append(post.id)
       # endfor
     # endfor
@@ -391,6 +397,8 @@ def get_posts_users_followed(user_id):
       flash('No followed?')    
     result = list()
     for user in users:
+      if user.is_blocking(user):
+        continue
       for post in get_posts_user(user.id):   
         result.append(post)
     return result
