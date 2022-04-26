@@ -6,7 +6,7 @@ from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask import session as cur_session
 from flask_login import login_required, current_user
 from requests import session
-from .models import User, Post, Topic
+from .models import User, Post, Topic, post_topic, liked_post, saved_post
 from . import db
 from werkzeug.security import generate_password_hash
 
@@ -49,17 +49,26 @@ def post_creation_handler():
         db.session.commit()
         return redirect(url_for('prof.profile'))
 
-@posts.route('/delete_post', methods=['POST'])
+@posts.route('/delete_post/<id>', methods=['POST'])
 @login_required
-def delete_post():
-    post_id = 3 # set this to request form value
-    print("deleting post: ", post_id)
-    if request.form.get('action') == "Delete Post":
-        obj = Post.query.filter_by(id=post_id).one()
-        db.session.delete(obj)
-        db.session.commit()
-    # TODO: Display some sort of post deletion message 
-    return redirect(url_for('prof.profile')) 
+def delete_post(id):
+  obj = Post.query.filter_by(id=id).first()
+  print(f"VALUE: { obj.id }")
+  # update relational databases
+  q1 = post_topic.delete().where(post_topic.c.post_id == obj.id)
+  db.session.execute(q1)
+  db.session.commit()
+  q2 = liked_post.delete().where(liked_post.c.liked_id == obj.id)
+  db.session.execute(q2)
+  db.session.commit()
+  q3 = saved_post.delete().where(saved_post.c.saved_id == obj.id)
+  db.session.execute(q3)
+  db.session.commit()
+  db.session.commit()
+  # update Posts db
+  db.session.delete(obj)
+  db.session.commit()
+  return redirect(url_for('prof.profile')) 
 
 
 #Temporary gateway to view posts temporary display NOT FINAL
@@ -67,6 +76,57 @@ def delete_post():
 @login_required
 def view_temp():
     return render_template('posttemp.html')
+  
+# Function to get html to display a post AND a button to delete it
+def post_del_to_html(post_id):
+    #Currently done as <h3> because that is what lines up with in where the 
+    #Post html is placed in timeline.html
+    cur_session['url'] = request.url
+    obj = Post.query.filter_by(id=post_id).first()
+    user_for_post = User.query.filter_by(id=obj.user_id).first()
+    tagged_topics = obj.tagged_topics
+    tagged_topics_str = "Tags: "
+    count = 0
+    for topic in tagged_topics:
+      count += 1    
+      tagged_topics_str += topic.name
+      if count < (len(tagged_topics)):
+        tagged_topics_str += ", "
+    contents = obj.contents
+    username = user_for_post.name
+
+    html_string = "<div class=\"box\"> \
+        <article class=\"media\">\
+          <figure class=\"media-left\">\
+            <p class=\"image is-64x64\">\
+              <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
+            </p>\
+          </figure>\
+          <div class=\"media-content\">\
+            <div class=\"content\">\
+              <p>\
+                <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
+                <br>" + tagged_topics_str + "</p>\
+                <br>" + str(contents) + "</p>\
+            </div>\
+            <nav class=\"level is-mobile\">\
+              <div class=\"level-left\">\
+                <button class=\"button is-ghost\">edit</button>\
+              </div>\
+              <div class=\"level-right\">\
+                <form method=\"POST\" action=\"/delete_post/"+str(post_id)+"\">\
+                  <button>Delete Post</button>\
+                </form>\
+              </div>\
+            </nav>\
+          </div>\
+          <div class=\"media-right\">\
+            <button class=\"delete\"></button>\
+          </div>\
+        </article>\
+        </div>"
+
+    return html_string
 
 #Function to get html to display a post
 def post_to_html(post_id):
@@ -334,6 +394,22 @@ def get_posts_users_followed(user_id):
       for post in get_posts_user(user.id):   
         result.append(post)
     return result
+  
+# Manage posts function
+@posts.route('/manage_posts/<id>/<post_num>')
+def manage_posts(id, post_num):
+    posts = Post.query.filter_by(user_id=id).all()
+    post_list = []
+    for post in posts:
+        post_list.append(post.id)
+    if len(post_list) == 0:
+        flash("You haven't created any posts yet!")
+        return redirect(url_for('prof.profile'))
+    post_num = int(post_num)
+    list_len = len(post_list)
+    post_html = post_del_to_html(post_list[post_num])
+    return render_template('manage_posts.html', id = id, post_num=post_num, post_html=post_html, list_len=list_len)
+# added above for manage posts
 
 # Display timeline of saved posts
 @posts.route('/saved_posts/<id>/<post_num>')
