@@ -420,17 +420,26 @@ def get_interactions_user(user_id):
     # Get things like comments, saving a post, reactions
     # and append them to each other
 
-    # Get post id's of liked posts
+
     interaction_post_ids = []
+    blocked_user_ids = []
     user = User.query.filter_by(id=user_id).first()
+
+    # Setup blocked users list
+    blocked_users = user.blocked.all()
+    for blocked_user in blocked_users:
+      blocked_user_ids.append(blocked_user.id)
+
+    # Get post id's of liked posts
     for liked_post in user.liked:
-      if liked_post.user_id not in user.blocked.all():
+      if liked_post.user_id not in blocked_user_ids:
         interaction_post_ids.append(liked_post.id)
 
+    # Get post id's of commented posts
     for comment in user.comments:
       if comment.post_id not in interaction_post_ids:
         post_of_comment = Post.query.filter_by(id=comment.post_id).first()
-        if post_of_comment.user_id not in user.blocked.all():
+        if post_of_comment.user_id not in blocked_user_ids:
           interaction_post_ids.append(comment.post_id)
 
     print("Post ids >>> " + str(interaction_post_ids))
