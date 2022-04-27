@@ -167,6 +167,8 @@ class Post(UserMixin, db.Model):
     contents = db.Column(db.String(300))
     anonymous = db.Column(db.Boolean)
     likes = db.Column(db.Integer)
+    filename = db.Column(db.String(50))
+    data = db.Column(db.LargeBinary)
     tagged_topics = db.relationship('Topic', secondary=post_topic, backref='posts_tagged_with')
     comments = db.relationship('Comment', backref='post', passive_deletes=True)
 

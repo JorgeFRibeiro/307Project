@@ -29,12 +29,17 @@ def post_creation_handler():
     if request.form.get('action') == "Post Created": 
         topic = request.form.get('topic')
         contents = request.form.get('contents')
+        file = request.files['attachment']
+        
+        isValidFile = False if not file else file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif'))
         anonymous = True if request.form.get('anonymous') == 'on' else False 
 
         if (anonymous):
-          new_post = Post(user_id= -1, contents=contents, anonymous=anonymous, likes=0) 
+          new_post = Post(user_id= -1, contents=contents, anonymous=anonymous, likes=0) \
+            if not isValidFile else Post(user_id= -1, contents=contents, anonymous=anonymous, likes=0, filename=file.filename, data=file.read())
         else:
-          new_post = Post(user_id=current_user.id, contents=contents, anonymous=anonymous, likes=0)
+          new_post = Post(user_id=current_user.id, contents=contents, anonymous=anonymous, likes=0) \
+            if not isValidFile else Post(user_id=current_user.id, contents=contents, anonymous=anonymous, likes=0, filename=file.filename, data=file.read())
         
         if (topic):
           topic_obj = Topic.query.filter_by(name=topic).first()
@@ -71,6 +76,13 @@ def delete_post(id):
   db.session.commit()
   return redirect(url_for('prof.profile')) 
 
+
+
+# Helper function to get all valid urls from a string 
+# Returns a list of urls
+def get_urls(contents):
+    url_list = re.findall(r'(https?://[^\s]+)', contents)
+    return url_list
 
 #Temporary gateway to view posts temporary display NOT FINAL
 @posts.route('/view_temp', methods=['POST'])
@@ -655,7 +667,3 @@ def unsave_post(id):
       return redirect(url_for('prof.view_profile', id=id))
 
 # Added above for save post functionality
-
-def get_urls(contents):
-    url_list = re.findall(r'(https?://[^\s]+)', contents)
-    return url_list
