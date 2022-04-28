@@ -113,6 +113,10 @@ def post_del_to_html(post_id):
       if count < (len(tagged_topics)):
         tagged_topics_str += ", "
     contents = obj.contents
+
+    for url in get_urls(contents):
+      contents = contents.replace(url, '<a href="' + url + '">' + url + '</a>')
+
     username = user_for_post.name
 
     image_string = ""
@@ -193,6 +197,11 @@ def post_to_html(post_id):
       if count < (len(tagged_topics)):
         tagged_topics_str += ", "
     contents = obj.contents
+
+    # convert urls to html links    
+    for url in get_urls(contents):
+      contents = contents.replace(url, '<a href="' + url + '">' + url + '</a>')
+
     likes = obj.likes
     # topics = obj.topic_list.split(',') // no longer needed, switched to post_topic rdb
     username = user_for_post.name
