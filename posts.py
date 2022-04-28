@@ -180,12 +180,8 @@ def post_to_html(post_id):
     # topics = obj.topic_list.split(',') // no longer needed, switched to post_topic rdb
     username = user_for_post.name
 
-    html_string_unliked_saved = ""
-    html_string_unliked_unsaved = ""
-    html_string_liked_saved = ""
-    html_string_liked_unsaved = ""
-
-    html_string_unliked_unsaved = "<div class=\"box\"> \
+    # Setup the initial html_string
+    html_string_base = "<div class=\"box\"> \
         <article class=\"media\">\
           <figure class=\"media-left\">\
             <p class=\"image is-64x64\">\
@@ -204,72 +200,10 @@ def post_to_html(post_id):
                 <form action=\"/see_full_post/"+str(post_id)+"\">\
                   <button>post details</button>\
                 </form>\
-              </div>\
-              <div class=\"level-right\">\
-                <form action=\"/save_post/"+str(post_id)+"\">\
-                  <button>Save</button>\
-                </form>\
-              </div>\
-              <div class=\"level-right\">\
-                <form action=\"/like_post/"+str(post_id)+"\">\
-                  <button>Like</button>\
-                </form>\
-              <div class=\"content\">\
-              <p>\
-                Likes: " + str(likes) + "</p>\
-              </div>\
-            </nav>"
+              </div>"
 
-    comment_bar = "<form class=\"input-group\" method='POST' action=\"/create-comment/"+str(obj.id)+"\" >\
-          <input type=\"text\" id=\"text\" name=\"text\" class =\"form-control\ placeholder=\"Comment something\" />\
-          <button type=\"submit\" class=\"btn btn-primary\">Comment</button>  \
-            <br>"
-    html_string_unliked_unsaved += comment_bar
-    for comment in obj.comments:
-      comments = comment.contents
-      if current_user.id == comment.author:
-        poster = current_user.name
-      else:
-        author = User.query.filter_by(id=comment.author).first()
-        poster = author.name
-      third_section = "<p><strong>" + str(poster) + ": </strong>" + str(comments) + ""
-      if current_user.id == comment.author or current_user == obj.user_id:
-        fourth_section = "&nbsp; &nbsp; <a href=\"/delete-comment/"+str(comment.id)+"\" style=\"color:red\">Delete</a></p>"
-      else:
-        fourth_section = ''
-      html_string_unliked_unsaved += third_section
-      html_string_unliked_unsaved += fourth_section
-    
-    
-    end = "</div>\
-          <div class=\"media-right\">\
-            <button class=\"delete\"></button>\
-          </div>\
-        </article>\
-        </div>"
-    html_string_unliked_unsaved += end
-    
-    html_string_unliked_saved = "<div class=\"box\"> \
-        <article class=\"media\">\
-          <figure class=\"media-left\">\
-            <p class=\"image is-64x64\">\
-              <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
-            </p>\
-          </figure>\
-          <div class=\"media-content\">\
-            <div class=\"content\">\
-              <p>\
-                <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
-                <br>" + tagged_topics_str + "</p>\
-                <br>" + str(contents) + "</p>\
-            </div>\
-            <nav class=\"level is-mobile\">\
-              <div class=\"level-right\">\
-                <form action=\"/see_full_post/"+str(post_id)+"\">\
-                  <button>post details</button>\
-                </form>\
-              </div>\
-              <div class=\"level-right\">\
+    # Setup strings for post_html based on like or saved status by the user
+    html_string_unliked_saved = "<div class=\"level-right\">\
                 <form action=\"/unsave_post/"+str(post_id)+"\">\
                   <button>Unsave</button>\
                 </form>\
@@ -277,53 +211,19 @@ def post_to_html(post_id):
               <div class=\"level-right\">\
                 <form action=\"/like_post/"+str(post_id)+"\">\
                   <button>Like</button>\
+                </form>"
+
+    html_string_unliked_unsaved = "<div class=\"level-right\">\
+                <form action=\"/save_post/"+str(post_id)+"\">\
+                  <button>Save</button>\
                 </form>\
-              <div class=\"content\">\
-              <p>\
-                Likes: " + str(likes) + "</p>\
-            </div>\
-            </nav>"
+              </div>\
+              <div class=\"level-right\">\
+                <form action=\"/like_post/"+str(post_id)+"\">\
+                  <button>Like</button>\
+                </form>"
 
-    html_string_unliked_saved += comment_bar
-    for comment in obj.comments:
-      comments = comment.contents
-      if current_user.id == comment.author:
-        poster = current_user.name
-      else:
-        author = User.query.filter_by(id=comment.author).first()
-        poster = author.name
-      third_section = "<p><strong>" + str(poster) + ": </strong>" + str(comments) + ""
-      if current_user.id == comment.author or current_user == obj.user_id:
-        fourth_section = "&nbsp; &nbsp; <a href=\"/delete-comment/"+str(comment.id)+"\" style=\"color:red\">Delete</a></p>"
-      else:
-        fourth_section = ''
-      html_string_unliked_saved += third_section
-      html_string_unliked_saved += fourth_section
-    
-    
-    html_string_unliked_saved += end
-
-    html_string_liked_saved = "<div class=\"box\"> \
-      <article class=\"media\">\
-        <figure class=\"media-left\">\
-          <p class=\"image is-64x64\">\
-            <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
-          </p>\
-        </figure>\
-        <div class=\"media-content\">\
-          <div class=\"content\">\
-            <p>\
-              <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
-              <br>" + tagged_topics_str + "</p>\
-              <br>" + str(contents) + "</p>\
-          </div>\
-          <nav class=\"level is-mobile\">\
-            <div class=\"level-right\">\
-              <form action=\"/see_full_post/"+str(post_id)+"\">\
-                <button>post details</button>\
-              </form>\
-            </div>\
-            <div class=\"level-right\">\
+    html_string_liked_saved = "<div class=\"level-right\">\
               <form action=\"/unsave_post/"+str(post_id)+"\">\
                 <button>Unsave</button>\
               </form>\
@@ -331,52 +231,9 @@ def post_to_html(post_id):
             <div class=\"level-right\">\
               <form action=\"/unlike_post/"+str(post_id)+"\">\
                 <button>Dislike</button>\
-              </form>\
-            <div class=\"content\">\
-            <p>\
-              Likes: " + str(likes) + "</p>\
-          </div>\
-          </nav>"
-    html_string_liked_saved += comment_bar
-    for comment in obj.comments:
-      comments = comment.contents
-      if current_user.id == comment.author:
-        poster = current_user.name
-      else:
-        author = User.query.filter_by(id=comment.author).first()
-        poster = author.name
-      third_section = "<p><strong>" + str(poster) + ": </strong>" + str(comments) + ""
-      if current_user.id == comment.author or current_user == obj.user_id:
-        fourth_section = "&nbsp; &nbsp; <a href=\"/delete-comment/"+str(comment.id)+"\" style=\"color:red\">Delete</a></p>"
-      else:
-        fourth_section = ''
-      html_string_liked_saved += third_section
-      html_string_liked_saved += fourth_section
+              </form>"
     
-    
-    html_string_liked_saved += end
-
-    html_string_liked_unsaved = "<div class=\"box\"> \
-      <article class=\"media\">\
-        <figure class=\"media-left\">\
-          <p class=\"image is-64x64\">\
-            <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
-          </p>\
-        </figure>\
-        <div class=\"media-content\">\
-          <div class=\"content\">\
-            <p>\
-              <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
-              <br>" + tagged_topics_str + "</p>\
-              <br>" + str(contents) + "</p>\
-          </div>\
-          <nav class=\"level is-mobile\">\
-            <div class=\"level-right\">\
-              <form action=\"/see_full_post/"+str(post_id)+"\">\
-                <button>post details</button>\
-              </form>\
-            </div>\
-            <div class=\"level-right\">\
+    html_string_liked_unsaved = "<div class=\"level-right\">\
               <form action=\"/save_post/"+str(post_id)+"\">\
                 <button>Save</button>\
               </form>\
@@ -384,13 +241,33 @@ def post_to_html(post_id):
             <div class=\"level-right\">\
               <form action=\"/unlike_post/"+str(post_id)+"\">\
                 <button>Dislike</button>\
-              </form>\
-            <div class=\"content\">\
-            <p>\
-              Likes: " + str(likes) + "</p>\
-          </div>\
-          </nav>"
-    html_string_liked_unsaved += comment_bar
+              </form>"
+
+    # Add saving and liking buttons based on state of post + user
+    if current_user.is_liking(obj): # user does not like post
+      if current_user.has_saved(obj):
+        html_string_base += html_string_liked_saved
+      else:
+        html_string_base += html_string_liked_unsaved
+    else:
+      if current_user.has_saved(obj):
+        html_string_base += html_string_unliked_saved
+      else:
+        html_string_base += html_string_unliked_unsaved
+
+    # Finish off whatever button state the post had
+    html_string_base += "<div class=\"content\">\
+              <p>\
+                Likes: " + str(likes) + "</p>\
+              </div>\
+            </nav>"
+
+    # Add in whatever comments exist to the post's html
+    comment_bar = "<form class=\"input-group\" method='POST' action=\"/create-comment/"+str(obj.id)+"\" >\
+          <input type=\"text\" id=\"text\" name=\"text\" class =\"form-control\ placeholder=\"Comment something\" />\
+          <button type=\"submit\" class=\"btn btn-primary\">Comment</button>  \
+            <br>"
+    html_string_base += comment_bar
     for comment in obj.comments:
       comments = comment.contents
       if current_user.id == comment.author:
@@ -403,23 +280,18 @@ def post_to_html(post_id):
         fourth_section = "&nbsp; &nbsp; <a href=\"/delete-comment/"+str(comment.id)+"\" style=\"color:red\">Delete</a></p>"
       else:
         fourth_section = ''
-      html_string_liked_unsaved += third_section
-      html_string_liked_unsaved += fourth_section
-    
-    
-    html_string_liked_unsaved += end
+      html_string_base += third_section
+      html_string_base += fourth_section
 
-    if current_user.is_liking(obj): # user does not like post
-      if current_user.has_saved(obj):
-        html_string = html_string_liked_saved
-      else:
-        html_string = html_string_liked_unsaved
-    else:
-      if current_user.has_saved(obj):
-        html_string = html_string_unliked_saved
-      else:
-        html_string = html_string_unliked_unsaved
-    return html_string
+    # Finish off the whole html
+    html_string_base += "</div>\
+          <div class=\"media-right\">\
+            <button class=\"delete\"></button>\
+          </div>\
+        </article>\
+        </div>"
+
+    return html_string_base
 
 # TODO function to get all comments a user made
 def get_comments_user(user_id):
