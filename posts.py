@@ -1,7 +1,9 @@
+from io import BytesIO
 import re
 from time import sleep
 from wsgiref.util import request_uri
 from certifi import contents
+from PIL import Image
 from flask import Blueprint, redirect, render_template, request, url_for, flash
 from flask import session as cur_session
 from flask_login import login_required, current_user
@@ -113,6 +115,15 @@ def post_del_to_html(post_id):
     contents = obj.contents
     username = user_for_post.name
 
+    image_string = ""
+    if (obj.filename):
+      img_src = Image.open(BytesIO(obj.data))
+      image_location = "./static/" + obj.filename
+      img_src.save(image_location)
+      image_string = "<div class=\"Box-body\">\
+                        <img src=" + image_location[1:] + ">\
+                      </div>"
+
     html_string = "<div class=\"box\"> \
         <article class=\"media\">\
           <figure class=\"media-left\">\
@@ -127,6 +138,7 @@ def post_del_to_html(post_id):
                 <br>" + tagged_topics_str + "</p>\
                 <br>" + str(contents) + "</p>\
             </div>\
+            " + image_string + "\
             <nav class=\"level is-mobile\">\
               <div class=\"level-right\">\
                 <form method=\"POST\" action=\"/delete_post/"+str(post_id)+"\">\
@@ -185,6 +197,16 @@ def post_to_html(post_id):
     # topics = obj.topic_list.split(',') // no longer needed, switched to post_topic rdb
     username = user_for_post.name
 
+    image_location = None
+    image_string = ""
+    if (obj.filename):
+      img_src = Image.open(BytesIO(obj.data))
+      image_location = "./static/" + obj.filename
+      img_src.save(image_location)
+      image_string = "<div class=\"Box-body\">\
+                        <img src=" + image_location[1:] + ">\
+                      </div>"
+
     if not current_user.is_authenticated:
       return "<div class=\"box\"> \
         <article class=\"media\">\
@@ -200,6 +222,7 @@ def post_to_html(post_id):
                 <br>" + tagged_topics_str + "</p>\
                 <br>" + str(contents) + "</p>\
             </div>\
+            " + image_string + "\
         </article>\
         </div>"
 
@@ -218,6 +241,7 @@ def post_to_html(post_id):
                 <br>" + tagged_topics_str + "</p>\
                 <br>" + str(contents) + "</p>\
             </div>\
+            " + image_string + "\
             <nav class=\"level is-mobile\">"
 
     # Setup strings for post_html based on like or saved status by the user
