@@ -213,12 +213,7 @@ def post_to_html(post_id):
                 <br>" + tagged_topics_str + "</p>\
                 <br>" + str(contents) + "</p>\
             </div>\
-            <nav class=\"level is-mobile\">\
-              <div class=\"level-right\">\
-                <form action=\"/see_full_post/"+str(post_id)+"\">\
-                  <button>post details</button>\
-                </form>\
-              </div>"
+            <nav class=\"level is-mobile\">"
 
     # Setup strings for post_html based on like or saved status by the user
     html_string_unliked_saved = "<div class=\"level-right\">\
