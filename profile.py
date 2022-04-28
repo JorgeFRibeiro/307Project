@@ -122,8 +122,10 @@ def search_user():
     for i in range(len(possible_people)):
         id_cur = possible_people[i].id
         user = possible_people[i]
-        print(id_cur)
-        if (not user.is_blocking(current_user)):
+        try:
+            if (not user.is_blocking(current_user)):
+                everyone_get_in_here += user_to_html(id_cur)
+        except AttributeError:
             everyone_get_in_here += user_to_html(id_cur)
 
     # String will be empty if no possible users were found, add the error
