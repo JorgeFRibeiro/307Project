@@ -112,6 +112,8 @@ class User(UserMixin, db.Model):
     def block(self, user):
         if not self.is_blocking(user):
             self.blocked.append(user)
+        if self.is_following(user):
+            self.followed.remove(user)
     # Unblocking a user
     def unblock(self, user):
         if self.is_blocking(user):

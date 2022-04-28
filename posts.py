@@ -185,6 +185,24 @@ def post_to_html(post_id):
     # topics = obj.topic_list.split(',') // no longer needed, switched to post_topic rdb
     username = user_for_post.name
 
+    if not current_user.is_authenticated:
+      return "<div class=\"box\"> \
+        <article class=\"media\">\
+          <figure class=\"media-left\">\
+            <p class=\"image is-64x64\">\
+              <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
+            </p>\
+          </figure>\
+          <div class=\"media-content\">\
+            <div class=\"content\">\
+              <p>\
+                <strong>" + str(username) + "</strong> <small>@placeholder</small> <small>31m</small>\
+                <br>" + tagged_topics_str + "</p>\
+                <br>" + str(contents) + "</p>\
+            </div>\
+        </article>\
+        </div>"
+
     # Setup the initial html_string
     html_string_base = "<div class=\"box\"> \
         <article class=\"media\">\
@@ -200,12 +218,7 @@ def post_to_html(post_id):
                 <br>" + tagged_topics_str + "</p>\
                 <br>" + str(contents) + "</p>\
             </div>\
-            <nav class=\"level is-mobile\">\
-              <div class=\"level-right\">\
-                <form action=\"/see_full_post/"+str(post_id)+"\">\
-                  <button>post details</button>\
-                </form>\
-              </div>"
+            <nav class=\"level is-mobile\">"
 
     # Setup strings for post_html based on like or saved status by the user
     html_string_unliked_saved = "<div class=\"level-right\">\
