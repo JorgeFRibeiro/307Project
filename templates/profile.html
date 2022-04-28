@@ -6,10 +6,10 @@
   <h1 class="title">User Info</h1>
   <div class="box">
       <!-- TODO: Add PFP display functionality -->
+      {{ pfp_to_html(id)|safe }}
 
       <h3>Name: {{ name }}</h3>
       <h3>Bio: {{ bio }}</h3>
-
       <form method="GET" action="/edit_profile">
           <button class="button is-block is-info is-large is-fullwidth" value="Edit Profile" name="action"button style="margin:5px;">Edit Profile</button>
       </form>

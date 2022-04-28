@@ -6,7 +6,7 @@ from numpy import delete
 import pusher
 import sqlalchemy
 from .models import User, Post, Topic, Message
-from .posts import post_to_html
+from .posts import post_to_html, pfp_to_html
 from . import db
 from werkzeug.security import generate_password_hash
 
@@ -20,7 +20,7 @@ def profile():
     topic_list = []
     for topic_obj in current_user.followed_topics.all():
         topic_list.append(topic_obj.name)
-    return render_template('profile.html', name = current_user.name, bio = current_user.bio, id = current_user.id, followed_topics = topic_list, post_to_html=post_to_html)
+    return render_template('profile.html', name = current_user.name, bio = current_user.bio, id = current_user.id, followed_topics = topic_list, post_to_html=post_to_html, pfp_to_html=pfp_to_html)
 
 # Edit Profile Page
 @prof.route('/edit_profile')
@@ -154,7 +154,7 @@ def search_user():
 @prof.route('/view_profile/<id>')
 def view_profile(id):
     user_to_view = User.query.get(id)
-    return render_template('other_profile_view.html', user = user_to_view, name = user_to_view.name, bio = user_to_view.bio, id = id, followed_topics = list(user_to_view.followed_topics))
+    return render_template('other_profile_view.html', user = user_to_view, name = user_to_view.name, bio = user_to_view.bio, id = id, followed_topics = list(user_to_view.followed_topics), pfp_to_html=pfp_to_html)
 
 # Following another dude
 @prof.route('/follow_user/<id>')

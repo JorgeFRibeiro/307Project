@@ -2,6 +2,7 @@ from io import BytesIO
 import os
 import re
 from time import sleep
+from typing import final
 from wsgiref.util import request_uri
 from certifi import contents
 from PIL import Image
@@ -188,6 +189,25 @@ def post_del_to_html(post_id):
     html_string += end
 
     return html_string
+
+def pfp_to_html(user_id):
+  user_pfp = User.query.filter_by(id=user_id).first()
+
+  pfp_string = "https://bulma.io/images/placeholders/128x128.png" 
+  if (user_pfp.pfp):
+    img_src = Image.open(BytesIO(user_pfp.pfp))
+    ext = os.path.splitext(user_pfp.pfp_filename)[1]
+    image_location = "./static/pfp" + str(user_pfp.id) + ext
+    img_src.save(image_location)
+    pfp_string = image_location[1:]
+
+
+  final_string = "<figure class=\"media-content\">\
+                    <p class=\"image is-64x64\">\
+                      <img src=\"" + pfp_string + "\">\
+                    </p>\
+                  </figure>"
+  return final_string 
 
 #Function to get html to display a post
 def post_to_html(post_id):

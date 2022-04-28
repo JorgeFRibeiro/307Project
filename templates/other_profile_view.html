@@ -6,6 +6,7 @@
   <h1 class="title">User Info</h1>
   <div class="box">
       <!-- TODO: Add PFP display functionality -->
+      {{ pfp_to_html(id)|safe }}
 
       <h3>Name: {{ name }}</h3>
 
