@@ -225,12 +225,15 @@ def post_to_html(post_id):
                       </div>"
     
     pfp_string = "https://bulma.io/images/placeholders/128x128.png"
+    print(user_for_post)
+    print(user_for_post.pfp_filename)
     if (user_for_post.pfp):
       img_src = Image.open(BytesIO(user_for_post.pfp))
       ext = os.path.splitext(user_for_post.pfp_filename)[1]
       image_location = "./static/pfp" + str(user_for_post.id) + ext
       img_src.save(image_location)
       pfp_string = image_location[1:]
+    print(pfp_string)
 
     if not current_user.is_authenticated:
       return "<div class=\"box\"> \
@@ -256,7 +259,7 @@ def post_to_html(post_id):
         <article class=\"media\">\
           <figure class=\"media-left\">\
             <p class=\"image is-64x64\">\
-              <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
+              <img src=\"" + pfp_string + "\">\
             </p>\
           </figure>\
           <div class=\"media-content\">\
