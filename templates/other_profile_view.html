@@ -15,8 +15,6 @@
 
       <h3>Followers: {{ user.followers.count() }}  Following: {{ user.followed.count() }}</h3>
 
-      <h3>Topics Follows: {{ followed_topics }} </h3>
-
   </div>
   {% endif %}
   {%if not current_user.is_blocking(user) %}
