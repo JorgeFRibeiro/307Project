@@ -18,7 +18,9 @@ prof = Blueprint('prof', __name__)
 def profile():
     # TODO: post_to_html parameter is only for testing purposes, REMOVE 
     topic_list = []
-    return render_template('profile.html', name = current_user.name, bio = current_user.bio, id = current_user.id, post_to_html=post_to_html)
+    for topic_obj in current_user.followed_topics.all():
+        topic_list.append(topic_obj.name)
+    return render_template('profile.html', name = current_user.name, bio = current_user.bio, id = current_user.id, followed_topics = topic_list, post_to_html=post_to_html)
 
 # Edit Profile Page
 @prof.route('/edit_profile')
@@ -65,7 +67,7 @@ def update_profile():
         bio = request.form.get('bio')
 
         email_exists = User.query.filter_by(email=email).first()
-        if email_exists and (email != current_user.email):
+        if email_exists:
             flash('That email is already in use!')
             return redirect(url_for('prof.profile')) 
 
@@ -122,10 +124,8 @@ def search_user():
     for i in range(len(possible_people)):
         id_cur = possible_people[i].id
         user = possible_people[i]
-        try:
-            if (not user.is_blocking(current_user)):
-                everyone_get_in_here += user_to_html(id_cur)
-        except AttributeError:
+        print(id_cur)
+        if (not user.is_blocking(current_user)):
             everyone_get_in_here += user_to_html(id_cur)
 
     # String will be empty if no possible users were found, add the error
@@ -140,7 +140,7 @@ def search_user():
 @prof.route('/view_profile/<id>')
 def view_profile(id):
     user_to_view = User.query.get(id)
-    return render_template('other_profile_view.html', user = user_to_view, name = user_to_view.name, bio = user_to_view.bio, id = id)
+    return render_template('other_profile_view.html', user = user_to_view, name = user_to_view.name, bio = user_to_view.bio, id = id, followed_topics = list(user_to_view.followed_topics))
 
 # Following another dude
 @prof.route('/follow_user/<id>')
