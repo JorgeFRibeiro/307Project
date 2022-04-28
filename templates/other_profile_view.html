@@ -41,6 +41,7 @@
   {% if current_user.is_authenticated %}
   <h1 class="title">Actions</h1>
   <div class="box">
+    {% if current_user.id != -1 %}
     <!-- id of user to follow/unfollow is supplied with {{ id }}    -->
     <!-- since it is given to it by the view_profile() function     -->
     {% if not current_user.is_blocking(user) %}
@@ -83,6 +84,7 @@
       <button class="button is-block is-info is-large is-fullwidth" value="Unblock User" name="action" button
         style="margin:5px;">Unblock User</button>
     </form>
+    {% endif %}
     {% endif %}
   </div>
   {% endif %}
