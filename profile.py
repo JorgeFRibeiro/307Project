@@ -4,6 +4,7 @@ from flask import session as cur_session
 from flask_login import login_required, current_user, UserMixin
 from numpy import delete
 import pusher
+import sqlalchemy
 from .models import User, Post, Topic, Message
 from .posts import post_to_html
 from . import db
@@ -65,8 +66,13 @@ def update_profile():
         name = request.form.get('name')
         bio = request.form.get('bio')
 
+        email_exists = User.query.filter_by(email=email).first()
+        if email_exists:
+            flash('That email is already in use!')
+            return redirect(url_for('prof.profile')) 
+
         if not email:
-            email = current_user.email
+            email = current_user.email 
         if not password:
             password = current_user.password
         if not name:
@@ -74,7 +80,7 @@ def update_profile():
         if not bio:
             bio = current_user.bio
 
-        user = User.query.filter_by(email=email).first() 
+        user = current_user
         user.email = email
         user.password = password
         user.name = name
