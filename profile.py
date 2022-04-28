@@ -64,7 +64,7 @@ def update_profile():
         print(request.files)
 
         email = request.form.get('email')
-        password = generate_password_hash(request.form.get('password'), method='sha256')
+        password = request.form.get('password')
         name = request.form.get('name')
         bio = request.form.get('bio')
         file = request.files['pfp_file']
@@ -80,7 +80,9 @@ def update_profile():
                 flash('That email is already in use!')
                 return redirect(url_for('prof.profile')) 
         if not password:
-            password = current_user.password
+            password = None
+        else:
+            password = generate_password_hash(request.form.get('password'), method='sha256')
         if not name:
             name = current_user.name
         if not bio:
@@ -96,7 +98,8 @@ def update_profile():
             user.pfp = None
 
         user.email = email
-        user.password = password
+        if password:
+            user.password = password
         user.name = name
         user.bio = bio 
         db.session.merge(user)
