@@ -22,6 +22,11 @@ def create_post():
     if request.form.get('action') == "Create Post":
       return render_template('create_post.html')
 
+@posts.route('/guest_create_post')
+@login_required
+def guest_create_post():
+  return render_template('create_post.html')
+
 # post form connection
 @posts.route('/post_created', methods=['POST'])
 @login_required
