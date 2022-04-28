@@ -60,19 +60,25 @@ def show_edit_profile():
 @login_required
 def update_profile():
     if request.form.get('action') == "Edit Profile":
+        print(request.form)
+        print(request.files)
 
         email = request.form.get('email')
         password = generate_password_hash(request.form.get('password'), method='sha256')
         name = request.form.get('name')
         bio = request.form.get('bio')
-
-        email_exists = User.query.filter_by(email=email).first()
-        if email_exists:
-            flash('That email is already in use!')
-            return redirect(url_for('prof.profile')) 
+        file = request.files['pfp_file']
+        delete_pfp = request.form.get('delete_pfp')
+        isValidFile = False if not file else file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif'))
 
         if not email:
-            email = current_user.email 
+            email = current_user.email
+        else:
+            email_exists = User.query.filter_by(email=email).first()
+
+            if email_exists is not None:
+                flash('That email is already in use!')
+                return redirect(url_for('prof.profile')) 
         if not password:
             password = current_user.password
         if not name:
@@ -81,6 +87,14 @@ def update_profile():
             bio = current_user.bio
 
         user = current_user
+        
+        if (isValidFile):
+            user.pfp_filename = file.filename
+            user.pfp = file.read()
+        if (delete_pfp):
+            user.pfp_filename = None
+            user.pfp = None
+
         user.email = email
         user.password = password
         user.name = name

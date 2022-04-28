@@ -1,4 +1,5 @@
 from flask_login import UserMixin
+from sqlalchemy import LargeBinary
 from . import db
 
 # User model that stores information regarding the person logged in atm
@@ -50,6 +51,8 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(1000))
     bio = db.Column(db.String(1000))
     chat_restriction = db.Column(db.Boolean)
+    pfp_filename = db.Column(db.String(50))
+    pfp = db.Column(LargeBinary)
     # End of warning
     followed_topics = db.relationship('Topic', secondary=user_topic, backref='followed_by', lazy='dynamic')
     comments = db.relationship('Comment',  backref='user', passive_deletes=True)

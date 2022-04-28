@@ -1,4 +1,5 @@
 from io import BytesIO
+import os
 import re
 from time import sleep
 from wsgiref.util import request_uri
@@ -127,12 +128,19 @@ def post_del_to_html(post_id):
       image_string = "<div class=\"Box-body\">\
                         <img src=" + image_location[1:] + ">\
                       </div>"
+    pfp_string = "https://bulma.io/images/placeholders/128x128.png"
+    if (user_for_post.pfp):
+      img_src = Image.open(BytesIO(user_for_post.pfp))
+      ext = os.path.splitext(user_for_post.pfp_filename)[1]
+      image_location = "./static/pfp" + str(user_for_post.id) + ext
+      img_src.save(image_location)
+      pfp_string = image_location[1:]
 
     html_string = "<div class=\"box\"> \
         <article class=\"media\">\
           <figure class=\"media-left\">\
             <p class=\"image is-64x64\">\
-              <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
+              <img src=\"" + pfp_string + "\">\
             </p>\
           </figure>\
           <div class=\"media-content\">\
@@ -215,13 +223,21 @@ def post_to_html(post_id):
       image_string = "<div class=\"Box-body\">\
                         <img src=" + image_location[1:] + ">\
                       </div>"
+    
+    pfp_string = "https://bulma.io/images/placeholders/128x128.png"
+    if (user_for_post.pfp):
+      img_src = Image.open(BytesIO(user_for_post.pfp))
+      ext = os.path.splitext(user_for_post.pfp_filename)[1]
+      image_location = "./static/pfp" + str(user_for_post.id) + ext
+      img_src.save(image_location)
+      pfp_string = image_location[1:]
 
     if not current_user.is_authenticated:
       return "<div class=\"box\"> \
         <article class=\"media\">\
           <figure class=\"media-left\">\
             <p class=\"image is-64x64\">\
-              <img src=\"https://bulma.io/images/placeholders/128x128.png\">\
+              <img src=\"" + pfp_string + "\">\
             </p>\
           </figure>\
           <div class=\"media-content\">\
