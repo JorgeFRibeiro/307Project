@@ -53,8 +53,15 @@ def all_topics_page():
 def view_topic(id, post_num):
     topic_to_view = Topic.query.get(id)
     post_list = []
+    blocked_user_ids = []
+
+    # Setup blocked users list
+    blocked_users = current_user.blocked.all()
+    for blocked_user in blocked_users:
+      blocked_user_ids.append(blocked_user.id)
     for post in topic_to_view.posts:
-        post_list.append(post.id)
+        if post.user_id not in blocked_user_ids:
+            post_list.append(post.id)
     if len(post_list) == 0:
         flash('No Content for that Topic Exists')
         return redirect(url_for('topics.all_topics_page'))
